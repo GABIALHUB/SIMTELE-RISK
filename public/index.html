@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMTELE-RISK | Analisis Numerico para Seguridad de Telefericos</title>
+    <!-- Tipografia elegante estilo Wisp: Playfair Display + Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- KaTeX para renderizado matematico en LaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- HERO HEADER CON FONDO CLARO LAVANDA SUAVE ESTILO WISP -->
+    <header class="top-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="badge-tag">SEMANA 1 - PROTOTIPO</span>
+                <h1 class="main-title">SIMTELE-RISK</h1>
+                <p class="subtitle">Simulacion y Evaluacion de Riesgos en Sistemas de Transporte por Cable Urbano</p>
+            </div>
+            <div class="header-actions">
+                <button id="btn-open-integrantes" class="btn btn-integrantes">Integrantes</button>
+                <button id="btn-open-math" class="btn btn-math">Explicacion Matematica</button>
+                <button id="btn-open-history" class="btn btn-secondary">Historial BD</button>
+                <button id="btn-open-der" class="btn btn-secondary">Diagrama DER</button>
+            </div>
+        </div>
+        
+        <!-- NAVEGACION DE MODULOS TIPO PILL -->
+        <nav class="module-nav">
+            <button class="nav-tab active" data-tab="tab-mod1">MODULO 1: Detencion de Emergencia</button>
+            <button class="nav-tab" data-tab="tab-lineales">LABORATORIO: Sistemas Lineales</button>
+            <button class="nav-tab" data-tab="tab-mod2">MODULO 2: Tension en Cables</button>
+            <button class="nav-tab" data-tab="tab-mod3">MODULO 3: Oscilaciones por Viento</button>
+            <button class="nav-tab" data-tab="tab-mod4">MODULO 4: Optimizacion Energetica</button>
+            <button class="nav-tab" data-tab="tab-cobertura">COBERTURA MATEMATICA</button>
+        </nav>
+    </header>
+
+    <main class="main-content">
+
+        <!-- ============================================================= -->
+        <!-- TAB 1: MODULO 1 - DETENCION DE EMERGENCIA (ACTIVO Y OPERATIVO)-->
+        <!-- ============================================================= -->
+        <section id="tab-mod1" class="tab-pane active">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <div class="title-with-btn">
+                        <h2>MODULO 1: Cinematica y Detencion de Emergencia de Cabinas</h2>
+                        <button class="btn btn-math btn-sm" onclick="abrirModalMatematica()">Explicacion Matematica Detallada</button>
+                    </div>
+                    <p class="case-question">Pregunta Central: Como varian el tiempo y la distancia de detencion frente a cambios en la velocidad inicial, tiempo de reaccion y perfiles de frenado?</p>
+                    <div class="case-math-preview">
+                        <span class="latex-eq">$$\frac{dx}{dt} = v(t), \quad \frac{dv}{dt} = -a(v, t), \quad t_{det} = t_{reac} + \frac{v_0}{a_0}, \quad d_{det} = v_0 t_{reac} + \frac{v_0^2}{2a_0}$$</span>
+                    </div>
+                    <p class="case-refs"><strong>Fundamentos Burden-Faires:</strong> EDO acoplada con RK2 (Heun, Ec. 5.48) y RK4 (Algoritmo 5.7). Cuadratura de \(v(t)\) con Trapecio Compuesto (Teor. 4.5), Simpson 1/3 Compuesto (Teor. 4.6) y Romberg (Algoritmo 4.2). Raices \(v(t)=0\) con Biseccion (Algoritmo 2.1), Newton-Raphson (Algoritmo 2.3) y Secante (Algoritmo 2.4).</p>
+                </div>
+            </div>
+
+            <!-- PANEL DE CONTROL Y PARAMETROS -->
+            <div class="control-grid">
+                <div class="card control-card">
+                    <div class="card-header">
+                        <h3>Configuracion del Escenario de Prueba</h3>
+                        <button class="btn btn-outline btn-sm" onclick="abrirModalMatematica()">Ver Deduccion</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="select-scenario">Seleccionar Escenario:</label>
+                            <select id="select-scenario" class="form-select">
+                                <option value="NORMAL" selected>Escenario 1: Normal (Nominal Urbano - a0 constante)</option>
+                                <option value="ESTRES">Escenario 2: Estres (Alta Velocidad y Retardo - Arrastre no lineal)</option>
+                                <option value="MAL_CONDICIONADO">Escenario 3: Mal Condicionado (Desvanecimiento Termico Asintotico)</option>
+                                <option value="CUSTOM">Escenario 4: Parametros Personalizados</option>
+                            </select>
+                        </div>
+
+                        <div class="params-grid">
+                            <div class="form-group">
+                                <label for="input-v0">Velocidad Inicial \(v_0\) [m/s]:</label>
+                                <input type="number" id="input-v0" class="form-input" value="5.0" step="0.1" min="1.0" max="15.0">
+                                <span class="input-hint">Nominal: 5.0 m/s (18 km/h)</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-treac">Tiempo Reaccion \(t_{reac}\) [s]:</label>
+                                <input type="number" id="input-treac" class="form-input" value="0.35" step="0.05" min="0.0" max="3.0">
+                                <span class="input-hint">Latencia de frenado</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-a0">Desaceleracion \(a_0\) [m/s\(^2\)]:</label>
+                                <input type="number" id="input-a0" class="form-input" value="1.3" step="0.1" min="0.5" max="4.0">
+                                <span class="input-hint">Norma admisible &le; 2.0 m/s\(^2\)</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-h">Paso Temporal \(h\) [s]:</label>
+                                <input type="number" id="input-h" class="form-input" value="0.05" step="0.01" min="0.005" max="0.5">
+                                <span class="input-hint">Tamano de paso EDO</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-dist-disp">Distancia Disponible [m]:</label>
+                                <input type="number" id="input-dist-disp" class="form-input" value="15.0" step="0.5" min="5.0" max="50.0">
+                                <span class="input-hint">Longitud de anden/terminal</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-tol">Tolerancia Raices (\(\epsilon\)):</label>
+                                <input type="number" id="input-tol" class="form-input" value="0.000001" step="0.000001">
+                                <span class="input-hint">Criterio epsilon de parada</span>
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button id="btn-run-sim" class="btn btn-primary">Ejecutar Simulacion</button>
+                            <button id="btn-save-sim" class="btn btn-success">Guardar en Base de Datos</button>
+                            <button id="btn-export-json" class="btn btn-outline">Exportar JSON</button>
+                            <button class="btn btn-math" onclick="abrirModalMatematica()">Explicacion Matematica</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TARJETAS DE INDICADORES (KPIS) -->
+                <div class="kpi-panel">
+                    <div class="kpi-card" id="kpi-distancia">
+                        <span class="kpi-title">Distancia de Parada (RK4)</span>
+                        <span class="kpi-value" id="val-dist-parada">-- m</span>
+                        <span class="kpi-sub" id="sub-dist-ref">Ref: -- m</span>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-tiempo">
+                        <span class="kpi-title">Tiempo Total Detencion</span>
+                        <span class="kpi-value" id="val-tiempo-parada">-- s</span>
+                        <span class="kpi-sub" id="sub-tiempo-ref">Ref: -- s</span>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-seguridad">
+                        <span class="kpi-title">Estado de Seguridad</span>
+                        <span class="kpi-value status-badge" id="val-estado-seg">--</span>
+                        <span class="kpi-sub" id="val-margen-seg">Margen: -- m</span>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-confort">
+                        <span class="kpi-title">Confort Pasajeros</span>
+                        <span class="kpi-value status-badge" id="val-confort-seg">--</span>
+                        <span class="kpi-sub" id="sub-acc-max">\(a_{max}\): -- m/s\(^2\)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCION DE CONCLUSIONES DUALES -->
+            <div class="card conclusions-card">
+                <div class="card-header">
+                    <h3>Conclusiones Duales del Caso de Estudio</h3>
+                </div>
+                <div class="card-body conclusions-grid">
+                    <div class="conclusion-box numerical-box">
+                        <h4>Conclusion Numerica (Convergencia y Error)</h4>
+                        <p id="txt-conclusion-numerica">Ejecute una simulacion para calcular el orden de convergencia experimental, la comparacion de error entre RK2 y RK4, y el desempeno de los metodos de integracion y busqueda de raices.</p>
+                    </div>
+                    <div class="conclusion-box physical-box">
+                        <h4>Conclusion del Problema Fisico y Seguridad Operativa</h4>
+                        <p id="txt-conclusion-fisica">Ejecute una simulacion para verificar si la cabina se detiene dentro de la distancia disponible en terminal y si se cumple la norma europea EN 12929 de aceleracion maxima para pasajeros.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAFICAS INTERACTIVAS EN CANVAS -->
+            <div class="charts-grid">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Posicion \(x(t)\) vs Tiempo</h3>
+                        <span class="chart-subtitle">Trayectoria cinematica y limite de distancia disponible</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas-posicion" width="550" height="280"></canvas>
+                        <div class="legend-row">
+                            <span class="legend-item"><span class="legend-color color-rk4"></span> RK4 (Burden)</span>
+                            <span class="legend-item"><span class="legend-color color-rk2"></span> RK2 (Heun)</span>
+                            <span class="legend-item"><span class="legend-color color-ref"></span> Referencia</span>
+                            <span class="legend-item"><span class="legend-color color-limit"></span> Limite Anden</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Velocidad \(v(t)\) vs Tiempo</h3>
+                        <span class="chart-subtitle">Curva de desaceleracion y punto de cruce por cero \(v(t)=0\)</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas-velocidad" width="550" height="280"></canvas>
+                        <div class="legend-row">
+                            <span class="legend-item"><span class="legend-color color-rk4"></span> RK4 (Burden)</span>
+                            <span class="legend-item"><span class="legend-color color-rk2"></span> RK2 (Heun)</span>
+                            <span class="legend-item"><span class="legend-color color-ref"></span> Referencia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card chart-card full-width">
+                    <div class="card-header">
+                        <h3>Evolucion del Error Absoluto \(|x_{num} - x_{ref}|\)</h3>
+                        <span class="chart-subtitle">Comparacion de orden de error \(O(h^2)\) vs \(O(h^4)\) a lo largo del tiempo</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas-error" width="1150" height="240"></canvas>
+                        <div class="legend-row">
+                            <span class="legend-item"><span class="legend-color color-rk2"></span> Error RK2 (Heun)</span>
+                            <span class="legend-item"><span class="legend-color color-rk4"></span> Error RK4 (Burden)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLAS COMPARATIVAS DE METODOS -->
+            <div class="tables-grid">
+                <!-- TABLA 1: EDO -->
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h3>Metodos EDO (Sistemas de 1er Orden)</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metodo</th>
+                                    <th>Orden</th>
+                                    <th>Distancia [m]</th>
+                                    <th>Tiempo [s]</th>
+                                    <th>Error Absoluto [m]</th>
+                                    <th>Error Relativo</th>
+                                    <th>CPU [ms]</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-edo">
+                                <tr><td colspan="7" class="text-muted">Sin datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TABLA 2: INTEGRACION DE v(t) -->
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h3>Cuadratura Numerica de \(v(t) \to x(t_{det})\)</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metodo</th>
+                                    <th>Orden Teorico</th>
+                                    <th>Integral [m]</th>
+                                    <th>Error Abs [m]</th>
+                                    <th>Error Rel</th>
+                                    <th>Evaluaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-integracion">
+                                <tr><td colspan="6" class="text-muted">Sin datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TABLA 3: BUSQUEDA DE RAICES -->
+                <div class="card table-card full-width">
+                    <div class="card-header">
+                        <h3>Busqueda de Raices para Instante de Detencion \(v(t) = 0\)</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metodo</th>
+                                    <th>Algoritmo Burden</th>
+                                    <th>Raiz \(t^*\) [s]</th>
+                                    <th>Iteraciones</th>
+                                    <th>Cota / Error Estimado</th>
+                                    <th>Convergencia</th>
+                                    <th>Comportamiento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-raices">
+                                <tr><td colspan="7" class="text-muted">Sin datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TABLA 4: TABLA TRIANGULAR DE ROMBERG -->
+                <div class="card table-card full-width">
+                    <div class="card-header">
+                        <h3>Tabla Triangular de Extrapolacion de Romberg (Burden Alg. 4.2)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table romberg-table" id="table-romberg">
+                                <thead>
+                                    <tr>
+                                        <th>Nivel \(k\)</th>
+                                        <th>Paso \(h_k\)</th>
+                                        <th>\(R(k, 1)\) - Trapecio</th>
+                                        <th>\(R(k, 2)\) - Simpson \(O(h^4)\)</th>
+                                        <th>\(R(k, 3)\) - Boole \(O(h^6)\)</th>
+                                        <th>\(R(k, 4)\) - \(O(h^8)\)</th>
+                                        <th>\(R(k, 5)\) - \(O(h^{10})\)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-romberg">
+                                    <tr><td colspan="7" class="text-muted">Ejecute la simulacion para generar la tabla</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA 5: REGISTRO DE TRAYECTORIA PASO A PASO -->
+                <div class="card table-card full-width">
+                    <div class="card-header">
+                        <h3>Registro Discreto de Trayectoria (RK4 Burden-Faires)</h3>
+                        <span class="card-subtitle">Primeros 50 pasos discretos temporales</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Paso</th>
+                                        <th>\(t\) [s]</th>
+                                        <th>Posicion \(x\) [m]</th>
+                                        <th>Velocidad \(v\) [m/s]</th>
+                                        <th>\(x_{ref}\) [m]</th>
+                                        <th>Error Abs \(x\) [m]</th>
+                                        <th>\(v_{ref}\) [m/s]</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-trayectoria">
+                                    <tr><td colspan="7" class="text-muted">Sin datos</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 2: LABORATORIO DE SISTEMAS LINEALES Y TEORIA DE ERRORES   -->
+        <!-- ============================================================= -->
+        <section id="tab-lineales" class="tab-pane">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <h2>Laboratorio de Sistemas Lineales \(Ax = b\) y Teoria Transversal de Errores</h2>
+                    <p class="case-question">Comparacion de Metodos Directos e Iterativos (Jacobi, Gauss-Seidel, LU Doolittle, Gradiente Conjugado y Eliminacion Gaussiana con Pivoteo)</p>
+                    <div class="case-math-preview">
+                        <span class="latex-eq">$$\|r\|_\infty = \|b - Ax\|_\infty, \quad \kappa_\infty(A) = \|A\|_\infty \cdot \|A^{-1}\|_\infty, \quad \frac{\|\delta x\|}{\|x\|} \le \kappa(A) \frac{\|\delta b\|}{\|b\|}$$</span>
+                    </div>
+                    <p class="case-refs"><strong>Fundamentos:</strong> Algoritmos 6.2, 6.4, 7.1, 7.2 y 7.5 de Burden & Faires. Analisis de numero de condicion \(\kappa_\infty(A)\) y cotas de error relativo.</p>
+                </div>
+            </div>
+
+            <div class="control-grid">
+                <div class="card control-card">
+                    <div class="card-header">
+                        <h3>Configuracion del Sistema \(Ax = b\)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="select-preset-matriz">Seleccionar Sistema Predefinido:</label>
+                            <select id="select-preset-matriz" class="form-select">
+                                <option value="preset_spd_4x4" selected>Sistema 1: 4x4 Simetrico Definido Positivo y Dominante (Tension Nodal)</option>
+                                <option value="preset_tridiag_4x4">Sistema 2: 4x4 Tridiagonal de Flecha de Cable (Diferencias Finitas)</option>
+                                <option value="preset_spd_5x5">Sistema 3: 5x5 Dominante por Diagonales Estricto</option>
+                                <option value="preset_hilbert_4x4">Sistema 4: 4x4 Matriz de Hilbert (Severamente Mal Condicionada)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="textarea-matriz-A">Matriz A (Filas separadas por nueva linea, valores por comas):</label>
+                            <textarea id="textarea-matriz-A" class="form-textarea" rows="4">10, -1, 2, 0
+-1, 11, -1, 3
+2, -1, 10, -1
+0, 3, -1, 8</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-vector-b">Vector de Terminos Independientes \(b\) (Separado por comas):</label>
+                            <input type="text" id="input-vector-b" class="form-input" value="6, 25, -11, 15">
+                        </div>
+
+                        <div class="params-grid">
+                            <div class="form-group">
+                                <label for="input-tol-lineal">Tolerancia (\(\text{tol}\)):</label>
+                                <input type="number" id="input-tol-lineal" class="form-input" value="0.000001" step="0.000001">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-maxiter-lineal">Iteraciones Maximas:</label>
+                                <input type="number" id="input-maxiter-lineal" class="form-input" value="100" min="10" max="500">
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button id="btn-resolver-lineal" class="btn btn-primary">Resolver y Comparar Metodos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAGNOSTICO DE CONDICIONAMIENTO MATRICIAL -->
+                <div class="card control-card">
+                    <div class="card-header">
+                        <h3>Diagnostico Matricial y Cota de Error</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="kpi-panel">
+                            <div class="kpi-card">
+                                <span class="kpi-title">Numero de Condicion \(\kappa_\infty\)</span>
+                                <span class="kpi-value" id="val-kappa-inf">--</span>
+                                <span class="kpi-sub" id="sub-kappa-desc">--</span>
+                            </div>
+                            <div class="kpi-card">
+                                <span class="kpi-title">Norma Infinito \(\|A\|_\infty\)</span>
+                                <span class="kpi-value" id="val-norm-inf-A">--</span>
+                                <span class="kpi-sub">Suma fila max</span>
+                            </div>
+                            <div class="kpi-card">
+                                <span class="kpi-title">Norma 1 \(\|A\|_1\)</span>
+                                <span class="kpi-value" id="val-norm-1-A">--</span>
+                                <span class="kpi-sub">Suma col max</span>
+                            </div>
+                            <div class="kpi-card">
+                                <span class="kpi-title">Dimension \(n\)</span>
+                                <span class="kpi-value" id="val-dim-matriz">4x4</span>
+                                <span class="kpi-sub">Grado del sistema</span>
+                            </div>
+                        </div>
+
+                        <div class="info-callout">
+                            <strong>Teoria de Sensibilidad (Burden-Faires Teorema 7.19):</strong>
+                            <p>Si la matriz posee un numero de condicion bajo (\(\kappa < 100\)), el sistema es insensible a perturbaciones en los datos medidos \(b\). Si \(\kappa \gg 10^3\), pequenas perturbaciones en \(b\) generan grandes desviaciones en la solucion \(x\).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTADOS COMPARATIVOS DE SISTEMAS LINEALES -->
+            <div class="tables-grid">
+                <div class="card table-card full-width">
+                    <div class="card-header">
+                        <h3>Comparacion de Metodos Lineales para \(Ax = b\)</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metodo</th>
+                                    <th>Tipo</th>
+                                    <th>Algoritmo Burden</th>
+                                    <th>Iteraciones</th>
+                                    <th>Vector Solucion \(x\)</th>
+                                    <th>Residuo \(\|b - Ax\|_\infty\)</th>
+                                    <th>Error \(\|x - x_{ref}\|_\infty\)</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-lineales-comp">
+                                <tr><td colspan="8" class="text-muted">Presione "Resolver y Comparar Metodos" para ejecutar los algoritmos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- HISTORIAL DE ITERACIONES DE METODOS ITERATIVOS -->
+                <div class="card table-card full-width">
+                    <div class="card-header">
+                        <h3>Evolucion Iterativa: Jacobi vs Gauss-Seidel vs Gradiente Conjugado</h3>
+                        <span class="card-subtitle">Diferencias y normas de residuo en cada iteracion \(k\)</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-container">
+                            <table class="data-table" id="table-iter-lineales">
+                                <thead>
+                                    <tr>
+                                        <th>Iteracion \(k\)</th>
+                                        <th>Jacobi - Error Paso</th>
+                                        <th>Jacobi - Residuo \(\|r\|\)</th>
+                                        <th>Gauss-Seidel - Error Paso</th>
+                                        <th>Gauss-Seidel - Residuo \(\|r\|\)</th>
+                                        <th>Gradiente Conjugado - \(\|r\|_2\)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-iter-lineales">
+                                    <tr><td colspan="6" class="text-muted">Sin datos iterativos</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 3: MODULO 2 - TENSION EN CABLES (PLANTEAMIENTO Y MODELO)  -->
+        <!-- ============================================================= -->
+        <section id="tab-mod2" class="tab-pane">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <span class="badge-tag">MODULO 2 - PLANTEAMIENTO FORMAL</span>
+                    <h2>MODULO 2: Distribucion de Tension en Cables y Deformacion Elastica</h2>
+                    <p class="case-question">Pregunta Central: Cual es la distribucion de tension nodal y la flecha admisible en los vanos criticos del cable portador-tractor sometido a cargas concentradas de cabinas y peso propio?</p>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
+                </div>
+                <div class="card-body">
+                    <p>El perfil estatico del cable en el vano \(i\) se rige por la ecuacion diferencial de catenaria no lineal con elasticidad:</p>
+                    <div class="latex-display">
+                        $$H \frac{d^2 y}{dx^2} = -w_{cable} \sqrt{1 + \left(\frac{dy}{dx}\right)^2} - \sum_{k=1}^{M} P_k \delta(x - x_k)$$
+                    </div>
+                    <p>Discretizando mediante el metodo de diferencias finitas centrales en \(N\) nodos, la segunda derivada se aproxima como:</p>
+                    <div class="latex-display">
+                        $$\left.\frac{d^2 y}{dx^2}\right|_{x_i} \approx \frac{y_{i+1} - 2y_i + y_{i-1}}{\Delta x^2}$$
+                    </div>
+                    <p>Esto conduce a un sistema tridiagonal simetrico \(K \cdot y = f\), resoluble mediante <strong>Factorizacion de Cholesky</strong> o <strong>LU Doolittle</strong> (Burden Alg. 6.4) y metodos iterativos como <strong>Gauss-Seidel</strong> (Alg. 7.2).</p>
+                    <p>Para la reconstruccion continua del perfil de flecha entre vanos, se utiliza <strong>Interpolacion por Splines Cubicos Sujetos</strong> (Burden Alg. 3.4) garantizando continuidad de curvatura \(C^2\) en los apoyos de las torretas:</p>
+                    <div class="latex-display">
+                        $$S_j(x) = a_j + b_j(x - x_j) + c_j(x - x_j)^2 + d_j(x - x_j)^3, \quad x \in [x_j, x_{j+1}]$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
+                </div>
+                <div class="card-body">
+                    <div class="scenarios-spec-grid">
+                        <div class="spec-card">
+                            <h4>Escenario 1: Normal (Vano Plano Horizontal)</h4>
+                            <p><strong>Parametros:</strong> Longitud \(L = 400\text{ m}\), desnivel \(H = 0\text{ m}\), tension base \(T_0 = 180\text{ kN}\), peso cable \(w = 25.0\text{ kg/m}\), 2 cabinas con carga nominal de \(6500\text{ N}\) en \(x = 133\text{ m}\) y \(266\text{ m}\).</p>
+                            <p><strong>Comportamiento:</strong> Matriz simetrica estrictamente dominante por diagonales con numero de condicion bajo (\(\kappa < 45\)). Convergencia rapida de Cholesky y Gauss-Seidel.</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 2: Estres (Vano Mayor en Alta Pendiente)</h4>
+                            <p><strong>Parametros:</strong> Longitud \(L = 900\text{ m}\), desnivel \(H = 350\text{ m}\), tension base \(T_0 = 220\text{ kN}\), \(w = 28.5\text{ kg/m}\), 4 cabinas a capacidad maxima (\(8200\text{ N}\) cada una).</p>
+                            <p><strong>Comportamiento:</strong> Acoplamiento no lineal de tension geometrica en la torreta superior. Mayor deformacion en splines cubicos.</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 3: Mal Condicionado (Perdida Severa de Pretensado)</h4>
+                            <p><strong>Parametros:</strong> Longitud \(L = 600\text{ m}\), tension reducida criticamente \(T_0 = 35\text{ kN}\), \(w = 25.0\text{ kg/m}\), carga descentrada de \(7500\text{ N}\).</p>
+                            <p><strong>Comportamiento:</strong> Perdida de rigidez transversal geometrica que eleva el numero de condicion de la matriz a \(\kappa > 10^5\), ralentizando metodos iterativos y demostrando alta sensibilidad a perturbaciones.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 4: MODULO 3 - OSCILACIONES Y RESONANCIA (PLANTEAMIENTO)   -->
+        <!-- ============================================================= -->
+        <section id="tab-mod3" class="tab-pane">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <span class="badge-tag">MODULO 3 - PLANTEAMIENTO FORMAL</span>
+                    <h2>MODULO 3: Oscilaciones Inducidas por Viento y Analisis de Resonancia</h2>
+                    <p class="case-question">Pregunta Central: En que bandas de velocidad de viento transversal se inducen vortices de von Karman cuya frecuencia coincide con los modos propios del pendulo cabina-cable, provocando balanceo critico en el paso por torres?</p>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
+                </div>
+                <div class="card-body">
+                    <p>La dinamica lateral de balanceo de la cabina suspendida como pendulo no lineal forzado se expresa como:</p>
+                    <div class="latex-display">
+                        $$\frac{d^2\theta}{dt^2} + 2\zeta\omega_0 \frac{d\theta}{dt} + \frac{g}{L_{pendulo}} \sin(\theta) = \frac{F_{viento}(t) L_{cg}}{I_{total}}$$
+                    </div>
+                    <p>La excitacion por desprendimiento de vortices de von Karman sigue la relacion de Strouhal:</p>
+                    <div class="latex-display">
+                        $$f_{vortex} = \frac{St \cdot v_{viento}}{D_{hidraulico}}, \quad \text{con } St \approx 0.20$$
+                    </div>
+                    <p>Para determinar el espectro modal de frecuencias naturales del sistema multi-cabina, se formula el problema de valores propios \(M^{-1}K \phi = \lambda \phi\), resuelto mediante el <strong>Metodo de la Potencia</strong> (Burden Alg. 9.1) y <strong>Potencia Inversa con Desplazamiento</strong> (Alg. 9.3). La respuesta transitoria subamortiguada se integra con <strong>RK4</strong>:</p>
+                    <div class="latex-display">
+                        $$\theta(t) = e^{-\zeta \omega_0 t} \left[ C_1 \cos(\omega_d t) + C_2 \sin(\omega_d t) \right] + \theta_{forzada}(t), \quad \omega_d = \omega_0 \sqrt{1 - \zeta^2}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
+                </div>
+                <div class="card-body">
+                    <div class="scenarios-spec-grid">
+                        <div class="spec-card">
+                            <h4>Escenario 1: Normal (Viento Laminar Constante)</h4>
+                            <p><strong>Parametros:</strong> Velocidad de viento \(v_{viento} = 35\text{ km/h}\) (\(9.72\text{ m/s}\)), longitud \(L = 8.5\text{ m}\), amortiguamiento \(\zeta = 0.08\).</p>
+                            <p><strong>Comportamiento:</strong> Oscilacion de baja amplitud contenida dentro de \(\theta_{max} < 4.5^\circ\), muy por debajo del limite admisible en torreta (\(12.0^\circ\)).</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 2: Estres (Rafaga Extrema en Paso por Torre)</h4>
+                            <p><strong>Parametros:</strong> Rafagas cruzadas de hasta \(75\text{ km/h}\) (\(20.83\text{ m/s}\)) con perfil de viento en rampa senoidal durante 5 segundos al cruzar el cabezal de rodillos.</p>
+                            <p><strong>Comportamiento:</strong> Respuesta transitoria no lineal con picos de aceleracion lateral capturados por RK4.</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 3: Mal Condicionado (Resonancia Pura de Strouhal)</h4>
+                            <p><strong>Parametros:</strong> Velocidad sintonizada en \(v_{viento} = 14.2\text{ m/s}\) coincidiendo exactamente con la primera frecuencia propia \(f_1 = 0.171\text{ Hz}\), amortiguamiento degradado \(\zeta = 0.005\).</p>
+                            <p><strong>Comportamiento:</strong> Resonancia divergente lineal hasta saturacion no lineal. Modos propios muy cercanos que retan la tasa de convergencia del metodo de la potencia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 5: MODULO 4 - OPTIMIZACION ENERGETICA (PLANTEAMIENTO)     -->
+        <!-- ============================================================= -->
+        <section id="tab-mod4" class="tab-pane">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <span class="badge-tag">MODULO 4 - PLANTEAMIENTO FORMAL</span>
+                    <h2>MODULO 4: Optimizacion del Consumo Energetico y Perfil de Velocidad</h2>
+                    <p class="case-question">Pregunta Central: Cual es el perfil optimo de velocidad crucero y aceleracion que minimiza la energia electrica consumida (kWh) en los motores de traccion manteniendo la capacidad nominal de pasajeros por hora y respetando los estandares de confort?</p>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
+                </div>
+                <div class="card-body">
+                    <p>La potencia mecanica instantanea requerida por el motor motriz se modela como:</p>
+                    <div class="latex-display">
+                        $$P(t) = \max\left(0, \frac{\left[m_{total} \frac{dv}{dt} + F_{friccion} + \Delta m \cdot g \sin(\alpha(s)) + \frac{1}{2}\rho C_x A v^2(t)\right] v(t)}{\eta_{electromecanica}}\right)$$
+                    </div>
+                    <p>El consumo total de energia en el ciclo de recorrido es la cuadratura funcional:</p>
+                    <div class="latex-display">
+                        $$E_{total} = \int_{0}^{T_{ciclo}} P(t) \, dt$$
+                    </div>
+                    <p>Esta integral se evalua mediante <strong>Cuadratura Gaussiana de Gauss-Legendre</strong> (Burden Seccion 4.7) y <strong>Simpson 1/3 Compuesto</strong>. La optimizacion del parametro de velocidad crucero \(v^*\) se resuelve mediante el <strong>Metodo de Seccion Aurea</strong> y <strong>Descenso por Gradiente</strong>:</p>
+                    <div class="latex-display">
+                        $$v_{k+1} = v_k - \gamma \nabla E_{total}(v_k)$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
+                </div>
+                <div class="card-body">
+                    <div class="scenarios-spec-grid">
+                        <div class="spec-card">
+                            <h4>Escenario 1: Normal (Ciclo Comercial Tipico)</h4>
+                            <p><strong>Parametros:</strong> Recorrido \(L = 2400\text{ m}\), \(v_{max} = 6.0\text{ m/s}\), aceleracion \(a = 0.40\text{ m/s}^2\), masa total \(120\text{ t}\), perfil trapezoidal suave.</p>
+                            <p><strong>Comportamiento:</strong> Funcion de costo de energia convexa y suave; convergencia en menos de 15 evaluaciones de seccion aurea.</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 2: Estres (Operacion en Hora Pico a Maxima Capacidad)</h4>
+                            <p><strong>Parametros:</strong> Desbalance total de pasajeros (cabinas de subida al 100%, bajada vacias), \(v_{max} = 7.5\text{ m/s}\), aceleracion de arranque al limite cinetico.</p>
+                            <p><strong>Comportamiento:</strong> Alta demanda de potencia pico en la rampa de arranque; evaluacion rigurosa de limites termicos del motor.</p>
+                        </div>
+                        <div class="spec-card">
+                            <h4>Escenario 3: Mal Condicionado (Trazado con Inversiones Continuas de Pendiente)</h4>
+                            <p><strong>Parametros:</strong> Perfil altimetrico irregular con pendientes alternadas \([-15\%, +28\%, -5\%, +32\%]\), alternando tramos motrices y tramos regenerativos.</p>
+                            <p><strong>Comportamiento:</strong> Superficie de costo con minimos locales y gradientes casi nulos en tramos llanos, desafiando algoritmos basados en derivadas simples.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 6: VISTA EXPLICACION MATEMATICA COMPLETA Y COBERTURA       -->
+        <!-- ============================================================= -->
+        <section id="tab-cobertura" class="tab-pane">
+            <div class="case-header-card">
+                <div class="case-info">
+                    <span class="badge-tag">REQUISITO 3 Y 9 DE GUIA FINAL</span>
+                    <h2>Cobertura Matematica Minima de Todo el Sistema y Cronograma</h2>
+                    <p class="case-question">Mapeo integral de las 6 familias de metodos numericos obligatorios, derivacion paso a paso para el Modulo 1 y cronograma de 3 semanas.</p>
+                </div>
+            </div>
+
+            <!-- TABLA OFICIAL DE COBERTURA MATEMATICA -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>3. Cobertura Matematica Minima de Todo el Sistema (Tabla de Familias)</h3>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Familia</th>
+                                <th>Metodos Obligatorios</th>
+                                <th>Evidencia Minima Requerida</th>
+                                <th>Modulo Asignado en SIMTELE-RISK</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Errores (transversal)</strong></td>
+                                <td>Absoluto, relativo si procede, porcentual, residual y sensibilidad (\(\kappa_\infty\))</td>
+                                <td>Tablas de error para CADA modulo; comparacion bajo perturbaciones</td>
+                                <td><strong>Transversal</strong> (src/numerical/errors.js y Laboratorio)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sistemas lineales</strong></td>
+                                <td>Jacobi; Gauss-Seidel; LU; gradiente conjugado; solucion exacta/directa de referencia</td>
+                                <td>\(Ax = b\) de tamano \(\ge 4\); residuo, condicion, iteraciones y errores</td>
+                                <td><strong>Laboratorio & Modulo 2</strong> (src/numerical/linear_systems.js)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interpolacion</strong></td>
+                                <td>Lagrange; Newton (diferencias divididas); splines cubicos</td>
+                                <td>Mismos nodos; puntos ocultados; curvas superpuestas</td>
+                                <td><strong>Modulo 2</strong> (Interpolacion de flecha de cable)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Raices</strong></td>
+                                <td>Biseccion; Newton-Raphson; secante</td>
+                                <td>Intervalo/semillas, raiz, iteraciones, error o residual</td>
+                                <td><strong>Modulo 1</strong> (Instante de detencion \(v(t) = 0\))</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integracion</strong></td>
+                                <td>Trapecio compuesto; Simpson 1/3 compuesto; Romberg</td>
+                                <td>Integral, valor analitico o referencia, refinamiento y errores</td>
+                                <td><strong>Modulo 1 & Modulo 4</strong> (Distancia \(x(t)\) y Energia \(E_{total}\))</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EDO</strong></td>
+                                <td>Runge-Kutta 2.º orden (variante Heun declarada); Runge-Kutta 4.º orden</td>
+                                <td>Condicion inicial, paso, tabla temporal, solucion de referencia y errores</td>
+                                <td><strong>Modulo 1 & Modulo 3</strong> (Detencion de cabina y oscilacion pendular)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EXPLICACION PASO A PASO DEL MODULO 1 -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>Explicacion Matematica Paso a Paso del Modulo 1 (Detencion de Emergencia)</h3>
+                </div>
+                <div class="card-body">
+                    <h4>1. Planteamiento Diferencial y Condiciones Iniciales</h4>
+                    <p>La cinematica del frenado de emergencia de una cabina se modela mediante el sistema acoplado de EDO de primer orden:</p>
+                    <div class="latex-display">
+                        $$\begin{cases}
+                        \dfrac{dx}{dt} = v(t), & x(0) = 0 \\
+                        \dfrac{dv}{dt} = -a(v, t), & v(0) = v_0
+                        \end{cases}$$
+                    </div>
+                    <p>Donde el perfil de desaceleracion incorpora el tiempo de reaccion \(t_{reac}\) del operador o actuador:</p>
+                    <div class="latex-display">
+                        $$a(v, t) = \begin{cases}
+                        0, & \text{si } t \le t_{reac} \\
+                        a_{freno}(v, t), & \text{si } t > t_{reac}
+                        \end{cases}$$
+                    </div>
+
+                    <h4>2. Deduccion de la Solucion Analitica de Referencia (Desaceleracion Constante \(a_0\))</h4>
+                    <p>Para el caso de frenado uniforme \(a_{freno} = a_0\), integramos directamente:</p>
+                    <div class="latex-display">
+                        $$v(t) = v_0 - \int_{t_{reac}}^t a_0 \, d\tau = v_0 - a_0 (t - t_{reac})$$
+                    </div>
+                    <p>El instante de detencion exacta \(t_{det}\) ocurre cuando \(v(t_{det}) = 0\):</p>
+                    <div class="latex-display">
+                        $$0 = v_0 - a_0 (t_{det} - t_{reac}) \implies t_{det} = t_{reac} + \frac{v_0}{a_0}$$
+                    </div>
+                    <p>Integrando la velocidad para obtener la posicion \(x(t)\):</p>
+                    <div class="latex-display">
+                        $$x(t) = \int_0^{t_{reac}} v_0 \, d\tau + \int_{t_{reac}}^t [v_0 - a_0(\tau - t_{reac})] \, d\tau = v_0 t_{reac} + v_0(t - t_{reac}) - \frac{1}{2}a_0(t - t_{reac})^2$$
+                    </div>
+                    <p>Evaluando en \(t = t_{det}\), la distancia total de frenado es:</p>
+                    <div class="latex-display">
+                        $$d_{det} = x(t_{det}) = v_0 t_{reac} + \frac{v_0^2}{2a_0}$$
+                    </div>
+
+                    <h4>3. Metodo de Runge-Kutta de 2do Orden (Variante de Heun / Trapecio Explicito)</h4>
+                    <p>Segun la Ecuacion 5.48 de Burden-Faires, para el sistema \(\mathbf{w}' = \mathbf{f}(t, \mathbf{w})\) con \(\mathbf{w} = [x, v]^T\):</p>
+                    <div class="latex-display">
+                        $$\begin{aligned}
+                        \mathbf{k}_1 &= h \mathbf{f}(t_i, \mathbf{w}_i) = \begin{bmatrix} h v_i \\ -h a(v_i, t_i) \end{bmatrix} \\
+                        \mathbf{w}_{pred} &= \mathbf{w}_i + \mathbf{k}_1 \quad \text{(Predictor de Euler)} \\
+                        \mathbf{k}_2 &= h \mathbf{f}(t_i + h, \mathbf{w}_{pred}) = \begin{bmatrix} h v_{pred} \\ -h a(v_{pred}, t_i + h) \end{bmatrix} \\
+                        \mathbf{w}_{i+1} &= \mathbf{w}_i + \frac{1}{2}(\mathbf{k}_1 + \mathbf{k}_2) \quad \text{(Corrector Trapezoidal)}
+                        \end{aligned}$$
+                    </div>
+                    <p>Error de truncamiento local: \(\tau_{i+1} = O(h^2)\); error global: \(O(h^2)\).</p>
+
+                    <h4>4. Metodo Clasico de Runge-Kutta de 4to Orden (Algoritmo 5.7 Burden-Faires)</h4>
+                    <p>Para lograr orden de convergencia de cuarto orden \(O(h^4)\):</p>
+                    <div class="latex-display">
+                        $$\begin{aligned}
+                        \mathbf{k}_1 &= h \mathbf{f}(t_i, \mathbf{w}_i) \\
+                        \mathbf{k}_2 &= h \mathbf{f}\left(t_i + \frac{h}{2}, \mathbf{w}_i + \frac{1}{2}\mathbf{k}_1\right) \\
+                        \mathbf{k}_3 &= h \mathbf{f}\left(t_i + \frac{h}{2}, \mathbf{w}_i + \frac{1}{2}\mathbf{k}_2\right) \\
+                        \mathbf{k}_4 &= h \mathbf{f}(t_i + h, \mathbf{w}_i + \mathbf{k}_3) \\
+                        \mathbf{w}_{i+1} &= \mathbf{w}_i + \frac{1}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)
+                        \end{aligned}$$
+                    </div>
+
+                    <h4>5. Integracion de la Velocidad \(v(t)\) para Distancia de Detencion</h4>
+                    <p>Se evalua la integral definida \(x(t_{det}) = \int_0^{t_{det}} v(t) \, dt\) mediante tres metodos comparativos:</p>
+                    <ul>
+                        <li><strong>Regla Compuesta del Trapecio (Teorema 4.5):</strong>
+                            <div class="latex-display">
+                                $$\int_a^b v(t) \, dt = \frac{h}{2} \left[ v(a) + 2\sum_{j=1}^{n-1} v(t_j) + v(b) \right] - \frac{b-a}{12} h^2 v''(\mu)$$
+                            </div>
+                        </li>
+                        <li><strong>Regla Compuesta de Simpson 1/3 (Teorema 4.6):</strong>
+                            <div class="latex-display">
+                                $$\int_a^b v(t) \, dt = \frac{h}{3} \left[ v(a) + 4\sum_{j=1}^{n/2} v(t_{2j-1}) + 2\sum_{j=1}^{n/2 - 1} v(t_{2j}) + v(b) \right] - \frac{b-a}{180} h^4 v^{(4)}(\mu)$$
+                            </div>
+                        </li>
+                        <li><strong>Integracion de Romberg (Algoritmo 4.2):</strong>
+                            Aplica extrapolacion de Richardson sobre la regla del trapecio sucesiva:
+                            <div class="latex-display">
+                                $$R_{k, j} = R_{k, j-1} + \frac{R_{k, j-1} - R_{k-1, j-1}}{4^{j-1} - 1}, \quad j = 2, \dots, k$$
+                            </div>
+                            Alcanzando orden de convergencia \(O(h^{2k})\) acelerado.
+                        </li>
+                    </ul>
+
+                    <h4>6. Busqueda de Raices para el Instante \(v(t) = 0\)</h4>
+                    <ul>
+                        <li><strong>Biseccion (Algoritmo 2.1):</strong> Garantiza convergencia incondicional en \([a, b]\) con cota de error:
+                            <div class="latex-display">
+                                $$|p_n - p| \le \frac{b - a}{2^n} \implies n \ge \frac{\ln(b - a) - \ln(\epsilon)}{\ln(2)}$$
+                            </div>
+                        </li>
+                        <li><strong>Newton-Raphson (Algoritmo 2.3):</strong> Basado en serie de Taylor de primer orden:
+                            <div class="latex-display">
+                                $$p_k = p_{k-1} - \frac{f(p_{k-1})}{f'(p_{k-1})} = p_{k-1} - \frac{v(p_{k-1})}{-a(v(p_{k-1}), p_{k-1})}$$
+                            </div>
+                            Presenta convergencia cuadratica \(O(e_k^2)\) cuando \(f'(p^*) \ne 0\). En el <strong>Escenario 3 (Mal Condicionado)</strong>, cuando \(v \to 0\) el frenado experimenta desvanecimiento termico y \(a \to 0\), provocando que \(f'(p_k) \approx 0\), division entre cero y <strong>divergencia catastrofica</strong>, evidenciando por que los metodos abiertos fallan ante tangentes casi horizontales.
+                        </li>
+                        <li><strong>Secante (Algoritmo 2.4):</strong> Reemplaza la derivada analitica por diferencias finitas:
+                            <div class="latex-display">
+                                $$p_k = p_{k-1} - \frac{f(p_{k-1})(p_{k-1} - p_{k-2})}{f(p_{k-1}) - f(p_{k-2})}$$
+                            </div>
+                            Convergencia de orden superlineal \(\alpha = \frac{1 + \sqrt{5}}{2} \approx 1.618\).
+                        </li>
+                    </ul>
+
+                    <h4>7. Cronograma y Entregables del Desafio Integrador (3 Semanas)</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Semana</th>
+                                <th>Puntos</th>
+                                <th>Entregables Principales</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Semana 1</strong></td>
+                                <td>6 puntos</td>
+                                <td>Planteamiento de 4 casos, EDO y cuadratura del Modulo 1, teoria de errores, sistemas lineales \(Ax = b\) (\(\ge 4\times 4\)), prototipo web y DER en SQLite.</td>
+                                <td><span class="status-badge badge-conforme">COMPLETADO</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Semana 2</strong></td>
+                                <td>7 puntos</td>
+                                <td>Implementacion de Modulo 2 (catenaria, splines cubicos) y Modulo 3 (viento, metodos de la potencia para modos propios), estabilidad y perturbaciones.</td>
+                                <td><span class="status-badge badge-moderado">PLANIFICADO</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Semana 3</strong></td>
+                                <td>7 puntos</td>
+                                <td>Implementacion de Modulo 4 (optimizacion energetica, seccion aurea), integracion completa del sistema, pruebas de estres y defensa.</td>
+                                <td><span class="status-badge badge-moderado">PLANIFICADO</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE INTEGRANTES (ORDENADOS ALFABETICAMENTE POR APELLIDO) -->
+    <div id="modal-integrantes" class="modal-overlay hidden">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Equipo de Desarrollo SIMTELE-RISK</h3>
+                <button id="btn-close-integrantes" class="btn-close">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Estudiantes ordenados en estricto <strong>orden alfabetico de apellidos</strong> conforme a los requerimientos del proyecto:</p>
+                
+                <div class="integrantes-grid">
+                    <div class="integrante-card">
+                        <span class="integrante-index">1</span>
+                        <div class="integrante-info">
+                            <h4>CANAVIRI SANDOVAL, Neyzar Erick</h4>
+                            <p class="integrante-role">Modelado Numerico de EDO y Cinematica de Cabinas (Modulo 1)</p>
+                            <span class="integrante-tag">Analisis Numerico & Algoritmos</span>
+                        </div>
+                    </div>
+
+                    <div class="integrante-card">
+                        <span class="integrante-index">2</span>
+                        <div class="integrante-info">
+                            <h4>LAYME GONZA, Vidal</h4>
+                            <p class="integrante-role">Sistemas Lineales, Factorizacion LU y Teoria de Errores</p>
+                            <span class="integrante-tag">Algebra Lineal Computacional</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD DE MARIAL GABRIELA RODAS CHAMBI RESALTADA COMO ENCARGADA DE SEMANA 1 -->
+                    <div class="integrante-card card-encargada">
+                        <span class="integrante-index">3</span>
+                        <div class="integrante-info">
+                            <h4>RODAS CHAMBI, Marial Gabriela</h4>
+                            <p class="integrante-role-destacado">Encargada de SEMANA 1 — Modelos y primeros algoritmos</p>
+                            <p class="integrante-role">Formulacion matematica de los 4 casos, EDO y cuadratura del Modulo 1, coordinacion y resolucion de sistemas lineales.</p>
+                            <span class="integrante-tag tag-encargada">Responsable de Entrega Semana 1</span>
+                        </div>
+                    </div>
+
+                    <div class="integrante-card">
+                        <span class="integrante-index">4</span>
+                        <div class="integrante-info">
+                            <h4>VARGAS CHOQUE, Nicole Fabiola</h4>
+                            <p class="integrante-role">Persistencia en Base de Datos SQLite (DER) y Prototipo Web</p>
+                            <span class="integrante-tag">Arquitectura de Datos y Visualizacion</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-callout" style="margin-top: 18px;">
+                    <strong>Proyecto Integrador de Analisis Numerico - SIMTELE-RISK</strong>
+                    <p>Modelado de dinamica, seguridad de frenado y evaluacion de riesgos operacionales en sistemas de telefericos urbanos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EXPLICACION MATEMATICA -->
+    <div id="modal-matematica" class="modal-overlay hidden">
+        <div class="modal-dialog large-dialog">
+            <div class="modal-header">
+                <h3>Explicacion Matematica Completa y Cobertura Minima</h3>
+                <button id="btn-close-matematica" class="btn-close">X</button>
+            </div>
+            <div class="modal-body" id="math-modal-content">
+                <div class="info-callout">
+                    <strong>Fundamentacion Teorica en Richard L. Burden & Douglas J. Faires</strong>
+                    <p>A continuacion se presenta la deduccion formal paso a paso de los modelos y algoritmos ejecutados en el Modulo 1, con renderizado LaTeX de alta precision.</p>
+                </div>
+
+                <div class="latex-card">
+                    <h4>Sistema de EDO y Solucion Analitica</h4>
+                    <div class="latex-display">
+                        $$\frac{dx}{dt} = v(t), \quad \frac{dv}{dt} = -a(v, t)$$
+                    </div>
+                    <p>Para desaceleracion constante \(a_0\) tras el tiempo de reaccion \(t_{reac}\):</p>
+                    <div class="latex-display">
+                        $$t_{det} = t_{reac} + \frac{v_0}{a_0}, \quad d_{det} = v_0 t_{reac} + \frac{v_0^2}{2a_0}$$
+                    </div>
+                </div>
+
+                <div class="latex-card">
+                    <h4>Algoritmo Runge-Kutta 2do Orden (Heun / Trapecio Explicito - Burden Ec. 5.48)</h4>
+                    <div class="latex-display">
+                        $$\mathbf{k}_1 = h \mathbf{f}(t_i, \mathbf{w}_i), \quad \mathbf{k}_2 = h \mathbf{f}(t_i + h, \mathbf{w}_i + \mathbf{k}_1), \quad \mathbf{w}_{i+1} = \mathbf{w}_i + \frac{1}{2}(\mathbf{k}_1 + \mathbf{k}_2)$$
+                    </div>
+                </div>
+
+                <div class="latex-card">
+                    <h4>Algoritmo Runge-Kutta 4to Orden Clasico (Burden Alg. 5.7)</h4>
+                    <div class="latex-display">
+                        $$\mathbf{w}_{i+1} = \mathbf{w}_i + \frac{1}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)$$
+                    </div>
+                </div>
+
+                <div class="latex-card">
+                    <h4>Cuadratura de Romberg con Extrapolacion de Richardson (Burden Alg. 4.2)</h4>
+                    <div class="latex-display">
+                        $$R_{k,j} = R_{k,j-1} + \frac{R_{k,j-1} - R_{k-1,j-1}}{4^{j-1} - 1}$$
+                    </div>
+                </div>
+
+                <div class="latex-card">
+                    <h4>Busqueda de Raices: Biseccion (Alg. 2.1) vs Newton (Alg. 2.3) vs Secante (Alg. 2.4)</h4>
+                    <div class="latex-display">
+                        $$p_{Newton} = p_{k-1} - \frac{f(p_{k-1})}{f'(p_{k-1})}, \quad p_{Secante} = p_{k-1} - \frac{f(p_{k-1})(p_{k-1} - p_{k-2})}{f(p_{k-1}) - f(p_{k-2})}$$
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL / CAJON DE HISTORIAL DE SIMULACIONES EN BD -->
+    <div id="modal-history" class="modal-overlay hidden">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Historial de Simulaciones en Base de Datos (SQLite)</h3>
+                <button id="btn-close-history" class="btn-close">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Simulaciones persistidas en las tablas <code>simulacion</code>, <code>ejecucion_metodo</code> y <code>resultado_resumen</code>.</p>
+                <div class="table-scroll-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Escenario</th>
+                                <th>Tipo</th>
+                                <th>Distancia [m]</th>
+                                <th>Tiempo [s]</th>
+                                <th>Seguridad</th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-history">
+                            <tr><td colspan="8" class="text-muted">Cargando historial...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DIAGRAMA DER -->
+    <div id="modal-der" class="modal-overlay hidden">
+        <div class="modal-dialog large-dialog">
+            <div class="modal-header">
+                <h3>Diagrama Entidad-Relacion (DER) - Base de Datos SQLite</h3>
+                <button id="btn-close-der" class="btn-close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="der-diagram-box">
+                    <div class="der-entity">
+                        <div class="entity-name">caso_estudio</div>
+                        <ul>
+                            <li><strong>PK: id</strong> INTEGER</li>
+                            <li>codigo TEXT (MOD1..MOD4)</li>
+                            <li>nombre TEXT</li>
+                            <li>pregunta_central TEXT</li>
+                            <li>metodos_asociados TEXT</li>
+                        </ul>
+                    </div>
+
+                    <div class="der-arrow">1 : N</div>
+
+                    <div class="der-entity">
+                        <div class="entity-name">escenario</div>
+                        <ul>
+                            <li><strong>PK: id</strong> INTEGER</li>
+                            <li><strong>FK: caso_id</strong> -&gt; caso_estudio</li>
+                            <li>nombre TEXT</li>
+                            <li>tipo (NORMAL, ESTRES, MAL_COND)</li>
+                            <li>parametros_json TEXT</li>
+                        </ul>
+                    </div>
+
+                    <div class="der-arrow">1 : N</div>
+
+                    <div class="der-entity">
+                        <div class="entity-name">simulacion</div>
+                        <ul>
+                            <li><strong>PK: id</strong> INTEGER</li>
+                            <li><strong>FK: escenario_id</strong> -&gt; escenario</li>
+                            <li>fecha_ejecucion TEXT</li>
+                            <li>estado TEXT</li>
+                            <li>observaciones TEXT</li>
+                        </ul>
+                    </div>
+
+                    <div class="der-branch-container">
+                        <div class="der-entity">
+                            <div class="entity-name">ejecucion_metodo</div>
+                            <ul>
+                                <li><strong>PK: id</strong> INTEGER</li>
+                                <li><strong>FK: simulacion_id</strong> -&gt; simulacion</li>
+                                <li>categoria (EDO, INT, RAICES, SIS)</li>
+                                <li>metodo TEXT</li>
+                                <li>iteraciones INTEGER</li>
+                                <li>resultado_principal REAL</li>
+                            </ul>
+                            <div class="der-sub">
+                                <div class="entity-name">iteracion_resultado</div>
+                                <ul>
+                                    <li><strong>PK: id</strong> INTEGER</li>
+                                    <li><strong>FK: ejecucion_id</strong></li>
+                                    <li>paso, t_val, valor_aprox, error_abs</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="der-entity">
+                            <div class="entity-name">resultado_resumen</div>
+                            <ul>
+                                <li><strong>PK: id</strong> INTEGER</li>
+                                <li><strong>FK: simulacion_id (1:1)</strong></li>
+                                <li>distancia_total REAL</li>
+                                <li>tiempo_detencion REAL</li>
+                                <li>cumple_seguridad INTEGER</li>
+                                <li>conclusion_numerica TEXT</li>
+                                <li>conclusion_fisica TEXT</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE APLICACION -->
+    <script src="js/app.js"></script>
+</body>
+</html>

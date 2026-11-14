@@ -1,0 +1,26 @@
+{
+  "name": "simtele-risk",
+  "version": "1.0.0",
+  "description": "Sistema Integrador de Analisis Numerico para Seguridad y Dinamica de Telefericos Urbanos - Semana 1",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/verify_week1.js"
+  },
+  "keywords": [
+    "analisis-numerico",
+    "burden-faires",
+    "matlab-gilat",
+    "runge-kutta",
+    "romberg",
+    "jacobi",
+    "gauss-seidel",
+    "conjugate-gradient"
+  ],
+  "author": "SIMTELE-RISK Team",
+  "license": "MIT",
+  "engines": {
+  "node": ">=22.5.0 <25.0.0"
+
+  }
+}

@@ -1,0 +1,976 @@
+/* =====================================================================
+   SIMTELE-RISK: Tema Claro Inspirado en "Wisp"
+   Estetica eterea, limpia y elegante:
+     - Fondo: Lavanda suave y blanco (#F5F2FB, #FAF8FE, #FFFFFF)
+     - Acentos y Botones: Violeta profundo (#5D45B0, #7E65C4)
+     - Texto: Ciruela oscuro y pizarra (#1E1435, #3A3152, #6E6285)
+     - Tipografia: Playfair Display (Serif elegante) + Plus Jakarta Sans
+     - Tarjetas y Contenedores: Bordes suaves, sombras tenues, curvas pill
+   Sin Emojis
+   ===================================================================== */
+
+:root {
+    --bg-main: #F6F3FB;
+    --bg-surface: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-card-header: #F4EFFB;
+    --bg-input: #FFFFFF;
+    
+    --border-color: #EAE3F7;
+    --border-light: #DDD2F2;
+    --border-focus: #5D45B0;
+
+    --color-primary: #5D45B0;
+    --color-primary-hover: #4C349F;
+    --color-primary-light: #EDE6F9;
+    --color-primary-glow: rgba(93, 69, 176, 0.15);
+    
+    --color-secondary: #7E65C4;
+    --color-secondary-light: #F0EBF8;
+    
+    --color-accent-pink: #E9D5FF;
+    --color-danger: #E11D48;
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+
+    --text-heading: #1E1435;
+    --text-primary: #2D2342;
+    --text-secondary: #5E5276;
+    --text-muted: #8A7E9F;
+
+    --font-serif: 'Playfair Display', Georgia, "Times New Roman", serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    --shadow-soft: 0 10px 30px rgba(93, 69, 176, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
+    --shadow-card: 0 4px 20px rgba(93, 69, 176, 0.05);
+    --radius-pill: 9999px;
+    --radius-card: 16px;
+    --radius-input: 10px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    background: linear-gradient(180deg, #F4EFFB 0%, #FAF8FE 30%, #F6F3FB 100%);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    padding-bottom: 60px;
+    min-height: 100vh;
+}
+
+/* ENCABEZADO SUPERIOR CON ESTILO HERO CLARO */
+.top-header {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 14px rgba(93, 69, 176, 0.04);
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.logo-area .badge-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.6px;
+    border: 1px solid var(--border-light);
+    display: inline-block;
+}
+
+.main-title {
+    font-family: var(--font-serif);
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-top: 4px;
+    color: var(--text-heading);
+}
+
+.subtitle {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* PESTANAS DE NAVEGACION PILL */
+.module-nav {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8px 28px;
+    overflow-x: auto;
+    border-top: 1px solid rgba(234, 227, 247, 0.6);
+    background-color: rgba(255, 255, 255, 0.75);
+    gap: 6px;
+}
+
+.nav-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: var(--radius-pill);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.nav-tab:hover {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.nav-tab.active {
+    color: #FFFFFF;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px var(--color-primary-glow);
+}
+
+/* CONTENEDOR PRINCIPAL */
+.main-content {
+    max-width: 1400px;
+    margin: 28px auto;
+    padding: 0 28px;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* TARJETA DE ENCABEZADO DE CASO (ESTILO WISP) */
+.case-header-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FAF8FE 100%);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--color-primary);
+    padding: 24px 28px;
+    border-radius: var(--radius-card);
+    margin-bottom: 26px;
+    box-shadow: var(--shadow-card);
+}
+
+.title-with-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.case-header-card h2 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    letter-spacing: -0.3px;
+}
+
+.case-question {
+    font-size: 0.98rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.case-math-preview {
+    background-color: #FAF8FE;
+    border: 1px solid var(--border-color);
+    padding: 10px 18px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+}
+
+.case-refs {
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+}
+
+/* GRID DE CONTROL Y KPIS */
+.control-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+@media (max-width: 992px) {
+    .control-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-soft);
+}
+
+.card-header {
+    background-color: var(--bg-card-header);
+    border-bottom: 1px solid var(--border-color);
+    padding: 14px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 {
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-primary);
+}
+
+.card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.card-body {
+    padding: 22px;
+}
+
+/* FORMULARIOS Y CONTROLES */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-heading);
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: var(--radius-input);
+    font-size: 0.92rem;
+    font-family: var(--font-sans);
+    transition: all 0.2s ease;
+}
+
+.form-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--border-focus);
+    background-color: #FFFFFF;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.input-hint {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.params-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+@media (max-width: 600px) {
+    .params-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* BOTONES PILL ELEGANTES ESTILO WISP */
+.btn {
+    padding: 10px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: var(--font-sans);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px var(--color-primary-glow);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(93, 69, 176, 0.25);
+}
+
+.btn-secondary {
+    background-color: #FFFFFF;
+    color: var(--color-primary);
+    border: 1px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+}
+
+.btn-success {
+    background-color: #059669;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.btn-success:hover {
+    background-color: #047857;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* BOTON DE INTEGRANTES (DESTACADO Y DISTINTIVO) */
+.btn-integrantes {
+    background: linear-gradient(135deg, #7E65C4 0%, #5D45B0 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 4px 14px var(--color-primary-glow);
+}
+
+.btn-integrantes:hover {
+    background: linear-gradient(135deg, #6C52B8 0%, #4D35A0 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(93, 69, 176, 0.3);
+}
+
+/* BOTON DE EXPLICACION MATEMATICA */
+.btn-math {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 700;
+    border: 1px solid var(--border-light);
+}
+
+.btn-math:hover {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 14px var(--color-primary-glow);
+}
+
+/* PANEL DE KPIS */
+.kpi-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.kpi-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--color-primary);
+    border-radius: var(--radius-card);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+}
+
+.kpi-title {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.kpi-value {
+    font-size: 1.55rem;
+    font-weight: 800;
+    font-family: var(--font-sans);
+    color: var(--color-primary);
+    letter-spacing: -0.5px;
+}
+
+.kpi-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: fit-content;
+}
+
+.badge-conforme {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+.badge-no-conforme {
+    background-color: #FFE4E6;
+    color: #9F1239;
+    border: 1px solid #FECDD3;
+}
+
+.badge-moderado {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+}
+
+/* CONCLUSIONES DUALES */
+.conclusions-card {
+    margin-bottom: 26px;
+}
+
+.conclusions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .conclusions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.conclusion-box {
+    padding: 20px;
+    border-radius: 14px;
+    background-color: #FAF8FE;
+    border: 1px solid var(--border-color);
+}
+
+.numerical-box {
+    border-left: 4px solid var(--color-primary);
+}
+
+.physical-box {
+    border-left: 4px solid var(--color-secondary);
+}
+
+.conclusion-box h4 {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-heading);
+}
+
+.conclusion-box p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+/* GRAFICAS EN CANVAS CON FONDO BLANCO LUMINOSO */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+@media (max-width: 992px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-card canvas {
+    width: 100%;
+    display: block;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.legend-row {
+    display: flex;
+    gap: 18px;
+    margin-top: 12px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    font-weight: 600;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 18px;
+    height: 5px;
+    border-radius: 3px;
+}
+
+.color-rk4 { background-color: var(--color-primary); }
+.color-rk2 { background-color: var(--color-secondary); }
+.color-ref { background-color: #2D2342; }
+.color-limit { background-color: var(--color-danger); }
+
+/* TABLAS DE DATOS CON ALTO CONTRASTE */
+.tables-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+@media (max-width: 992px) {
+    .tables-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.table-responsive, .table-scroll-container {
+    overflow-x: auto;
+    max-height: 420px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-family: var(--font-sans);
+}
+
+.data-table th, .data-table td {
+    padding: 11px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background-color: var(--bg-card-header);
+    color: var(--color-primary);
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.data-table tbody tr {
+    background-color: #FFFFFF;
+    transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #FAF8FE;
+}
+
+.data-table tbody tr:hover {
+    background-color: #F2ECFA;
+}
+
+.romberg-table td {
+    font-family: var(--font-mono);
+}
+
+.text-muted {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+}
+
+/* BLOQUES DE LATEX CON ESTILO LIMPIO */
+.latex-display {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--color-primary);
+    padding: 14px 20px;
+    margin: 14px 0;
+    border-radius: 10px;
+    overflow-x: auto;
+    color: var(--text-heading);
+    box-shadow: 0 2px 8px rgba(93, 69, 176, 0.03);
+}
+
+.latex-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+.latex-card h4 {
+    font-family: var(--font-serif);
+    color: var(--color-primary);
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+}
+
+.info-callout {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+}
+
+.info-callout strong {
+    color: var(--color-primary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.scenarios-spec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+    .scenarios-spec-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.spec-card {
+    background-color: #FAF8FE;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--color-primary);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.spec-card h4 {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.spec-card p {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.55;
+}
+
+/* MODALES */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(30, 20, 53, 0.45);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-dialog {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 850px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(45, 35, 66, 0.18);
+}
+
+.large-dialog {
+    max-width: 1050px;
+}
+
+.modal-header {
+    background-color: var(--bg-card-header);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.modal-header h3 {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.modal-body {
+    padding: 26px;
+    overflow-y: auto;
+}
+
+.modal-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+}
+
+/* CARDS DE INTEGRANTES CON RESALTADO PARA MARIAL GABRIELA RODAS CHAMBI */
+.integrantes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 700px) {
+    .integrantes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.integrante-card {
+    background-color: #FAF8FE;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.integrante-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+/* TARJETA DESTACADA PARA MARIAL GABRIELA RODAS CHAMBI */
+.card-encargada {
+    background: linear-gradient(135deg, #F5EFFC 0%, #EDE4F9 100%);
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 6px 18px var(--color-primary-glow);
+}
+
+.integrante-index {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--border-light);
+}
+
+.card-encargada .integrante-index {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+    border-color: var(--color-primary);
+}
+
+.integrante-info h4 {
+    font-size: 1rem;
+    color: var(--text-heading);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.integrante-role-destacado {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+}
+
+.integrante-role {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.45;
+}
+
+.integrante-tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background-color: #FFFFFF;
+    color: var(--color-secondary);
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-light);
+}
+
+.tag-encargada {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+    border-color: var(--color-primary);
+}
+
+/* DIAGRAMA DER VISUAL CLARO */
+.der-diagram-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.der-entity {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--color-primary);
+    border-radius: 12px;
+    width: 320px;
+    font-size: 0.82rem;
+    box-shadow: var(--shadow-card);
+}
+
+.entity-name {
+    background-color: var(--bg-card-header);
+    padding: 8px 14px;
+    font-weight: 700;
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--border-color);
+    font-family: var(--font-mono);
+}
+
+.der-entity ul {
+    list-style: none;
+    padding: 10px 14px;
+}
+
+.der-entity li {
+    padding: 3px 0;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.der-arrow {
+    font-family: var(--font-mono);
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.der-branch-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.der-sub {
+    margin-top: 10px;
+    border-top: 1px dashed var(--border-light);
+    padding-top: 8px;
+}
