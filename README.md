@@ -1,12 +1,12 @@
-# Simulador Numérico - Avance del Proyecto (Semana 1)
+# Simulador Numérico - Avance del Proyecto
 
 Este repositorio contiene el desarrollo del proyecto orientado a la resolución de problemas físicos mediante la implementación de métodos numéricos. La herramienta permite configurar distintos escenarios de simulación y auditar la precisión de los algoritmos aplicados en cada caso de estudio.
 
 ## Integrantes del Grupo
-*   CANAVIRI SANDOVAL, NEYZER ERICK
-*   LAYME GONZA, VIDAL
-*   RODAS CHAMBI, MARIAL GABRIELA *(Encargada de Semana 1 — Modelos y primeros algoritmos)*
-*   VARGAS CHOQUE, NICOLE FABIOLA
+*   CANAVIRI SANDOVAL NEYZER ERICK
+*   LAYME GONZA VIDAL
+*   RODAS CHAMBI MARIAL GABRIELA 
+*   VARGAS CHOQUE NICOLE FABIOLA
 
 ---
 
