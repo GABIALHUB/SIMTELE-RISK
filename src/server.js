@@ -6,12 +6,11 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const url = require('node:url');
 
 const db = require('./db/database');
 const { ejecutarSimulacionModulo1, prepararPayloadParaDB } = require('./numerical/module1_engine');
 const { compararMetodosLineales } = require('./numerical/linear_systems');
-const { numeroCondicionInfinito, normaInfinitoMatriz, norma1Matriz } = require('./numerical/errors');
+const { numeroCondicionInfinito, normaInfinitoMatriz, normaL1Matriz } = require('./numerical/errors');
 const { runWeek2 } = require('./numerical/week2_engine');
 
 const PORT = process.env.PORT || 3000;
@@ -72,7 +71,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    const parsedUrl = url.parse(req.url, true);
+    const parsedUrl = new URL(req.url, 'http://localhost');
     const pathname = parsedUrl.pathname;
 
     try {
@@ -80,7 +79,8 @@ const server = http.createServer(async (req, res) => {
 
         // Laboratorio de Semana 2: módulos 2, 3 y 4 en tres escenarios reproducibles.
         if (req.method === 'GET' && pathname === '/api/semana2/historial') {
-            const limite = parsedUrl.query.limite === undefined ? 20 : Number(parsedUrl.query.limite);
+            const limitValues = parsedUrl.searchParams.getAll('limite');
+            const limite = limitValues.length === 0 ? 20 : limitValues.length === 1 ? Number(limitValues[0]) : NaN;
             if (!Number.isInteger(limite) || limite < 1 || limite > 100) {
                 responderJSON(res, 400, { success: false, error: 'limite debe ser un entero entre 1 y 100' });
                 return;
@@ -116,7 +116,8 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (req.method === 'GET' && pathname === '/api/semana2') {
-            const scenario = parsedUrl.query.escenario === undefined ? 'NORMAL' : parsedUrl.query.escenario;
+            const scenarioValues = parsedUrl.searchParams.getAll('escenario');
+            const scenario = scenarioValues.length === 0 ? 'NORMAL' : scenarioValues.length === 1 ? scenarioValues[0] : null;
             if (typeof scenario !== 'string' || !['NORMAL', 'ESTRES', 'MAL_CONDICIONADO'].includes(scenario)) {
                 responderJSON(res, 400, { success: false, error: 'Escenario inválido. Usa NORMAL, ESTRES o MAL_CONDICIONADO.' });
                 return;
@@ -162,17 +163,23 @@ const server = http.createServer(async (req, res) => {
             const body = await parsearCuerpoJSON(req);
             const A = body.A;
             const b = body.b;
-            const tol = body.tol || 1e-6;
-            const maxIter = body.maxIter || 100;
+            const tol = body.tol === undefined ? 1e-6 : body.tol;
+            const maxIter = body.maxIter === undefined ? 100 : body.maxIter;
 
-            if (!A || !b || !Array.isArray(A) || !Array.isArray(b)) {
-                responderJSON(res, 400, { success: false, error: 'Matriz A y vector b son requeridos' });
+            const matrixIsValid = Array.isArray(A) && A.length > 0 && A.every(row => Array.isArray(row) && row.length === A.length && row.every(Number.isFinite));
+            const vectorIsValid = Array.isArray(b) && Array.isArray(A) && b.length === A.length && b.every(Number.isFinite);
+            if (!matrixIsValid || !vectorIsValid) {
+                responderJSON(res, 400, { success: false, error: 'A debe ser una matriz cuadrada no vacía y b un vector del mismo tamaño; todos sus valores deben ser finitos' });
+                return;
+            }
+            if (!Number.isFinite(tol) || tol <= 0 || !Number.isInteger(maxIter) || maxIter < 1 || maxIter > 100000) {
+                responderJSON(res, 400, { success: false, error: 'tol debe ser finita y positiva; maxIter debe ser un entero entre 1 y 100000' });
                 return;
             }
 
             const cond = numeroCondicionInfinito(A);
             const normInfA = normaInfinitoMatriz(A);
-            const norm1A = norma1Matriz(A);
+            const norm1A = normaL1Matriz(A);
             const comparacion = compararMetodosLineales(A, b, tol, maxIter);
 
             responderJSON(res, 200, {
@@ -192,7 +199,7 @@ const server = http.createServer(async (req, res) => {
 
         // 4. Listar Historial de Simulaciones
         if (req.method === 'GET' && pathname === '/api/simulaciones') {
-            const limite = parseInt(parsedUrl.query.limite, 10) || 20;
+            const limite = parseInt(parsedUrl.searchParams.get('limite'), 10) || 20;
             const lista = db.listarSimulaciones(limite);
             responderJSON(res, 200, { success: true, simulaciones: lista });
             return;

@@ -8,7 +8,7 @@ const os = require('node:os');
 const testDatabasePath = path.join(os.tmpdir(), `simtele-risk-week1-${process.pid}.db`);
 process.env.SIMTELE_RISK_DB_PATH = testDatabasePath;
 const db = require('../src/db/database');
-const { errorAbsoluto, errorRelativo, numeroCondicionInfinito } = require('../src/numerical/errors');
+const { errorAbsoluto, errorRelativo, numeroCondicionInfinito, normaL1Matriz } = require('../src/numerical/errors');
 const { compararMetodosLineales } = require('../src/numerical/linear_systems');
 const { ejecutarSimulacionModulo1, prepararPayloadParaDB } = require('../src/numerical/module1_engine');
 
@@ -57,6 +57,7 @@ try {
     const b = [6, 25, -11, 15];
     const cond = numeroCondicionInfinito(A);
     assertTest('Calculo de Numero de Condicion kappa_inf', cond.kappa > 0 && cond.esBienCondicionada, `kappa = ${cond.kappa.toFixed(2)}`);
+    assertTest('Calculo de norma matricial L1 usada por la API', normaL1Matriz(A) === 16, `||A||1 = ${normaL1Matriz(A)}`);
 
     const linRes = compararMetodosLineales(A, b, 1e-6, 100);
     assertTest('Eliminacion Gaussiana (Directo Referencia)', linRes.referencia.convergencia, `x = [${linRes.referencia.solucion.map(v => v.toFixed(2)).join(', ')}]`);
