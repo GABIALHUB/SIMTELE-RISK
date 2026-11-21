@@ -7,7 +7,7 @@ const { DatabaseSync } = require('node:sqlite');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DB_PATH = path.join(__dirname, 'simtele_risk.db');
+const DB_PATH = process.env.SIMTELE_RISK_DB_PATH || path.join(__dirname, 'simtele_risk.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
 let dbInstance = null;
@@ -19,6 +19,7 @@ function getDatabase() {
         dbInstance.exec('PRAGMA foreign_keys = ON;');
         initSchema(dbInstance);
         seedInitialData(dbInstance);
+        syncWeek2Catalog(dbInstance);
     }
     return dbInstance;
 }
@@ -60,8 +61,8 @@ function seedInitialData(db) {
             nombre: 'Distribucion de tension en cables y deformacion elastica',
             descripcion: 'Calculo del perfil de catenaria y tension nodal a lo largo de los vanos del cable portador-tractor sometido a cargas puntuales de cabinas.',
             pregunta_central: 'Cual es la tension maxima y flecha admisible en los vanos criticos bajo diferentes estados de carga?',
-            metodos_asociados: 'Sistemas lineales: Factorizacion LU Doolittle (Alg 6.4), Cholesky, Jacobi (Alg 7.1), Gauss-Seidel (Alg 7.2). Interpolacion por Splines Cubicos (Alg 3.4).',
-            referencia_analitica: 'Ecuacion de catenaria elastica y solucion analitica de viga simplemente apoyada con carga distribuida constante.',
+            metodos_asociados: 'Diferencias finitas para el modelo linealizado de flecha pequeña; LU, Jacobi, Gauss-Seidel y gradiente conjugado; comparación contra solución parabólica analítica.',
+            referencia_analitica: 'Solución parabólica y(x)=q*x*(L-x)/(2*H) para carga uniforme equivalente y extremos apoyados.',
             resultados_esperados: 'Perfil de deflexion vertical, vector de tensiones nodales, numero de condicion de la matriz de rigidez y esfuerzo maximo admisible.'
         },
         {
@@ -69,7 +70,7 @@ function seedInitialData(db) {
             nombre: 'Oscilaciones inducidas por viento y resonancia',
             descripcion: 'Modelado del pendulo amortiguado acoplado de la cabina y el cable ante rafagas transversales de viento y vortices de von Karman.',
             pregunta_central: 'En que rango de velocidades de viento se produce resonancia transversal y balanceo critico que exceda el limite de paso por torre?',
-            metodos_asociados: 'Valores propios: Metodo de la potencia (Alg 9.1), Potencia inversa. EDO acoplada de 2do orden: RK4 para pendulo forzado con amortiguamiento no lineal. Diferenciacion numerica.',
+            metodos_asociados: 'EDO no lineal forzada de segundo orden; Runge-Kutta 2 (Heun) y RK4; comparación temporal contra RK4 con paso refinado.',
             referencia_analitica: 'Frecuencia natural analitica omega_0 = sqrt(g / L) y solucion de oscilador armonico subamortiguado con excitacion senoidal pura.',
             resultados_esperados: 'Espectro modal de frecuencias naturales, amplitud maxima de oscilacion theta_max, diagrama de fase (theta vs omega) y velocidad critica de viento.'
         },
@@ -78,8 +79,8 @@ function seedInitialData(db) {
             nombre: 'Optimizacion del consumo energetico y velocidad de operacion',
             descripcion: 'Ajuste de perfiles de velocidad crucero para minimizar el consumo en kWh de los motores electricos de traccion respetando limites de jerk y tiempos de ciclo.',
             pregunta_central: 'Cual es el perfil optimo de aceleracion y velocidad que minimiza la energia consumida manteniendo la capacidad de transporte horaria?',
-            metodos_asociados: 'Optimizacion unidimensional: Seccion aurea, Descenso por gradiente. Cuadratura numerica de Gauss-Legendre para integral de potencia P(t)*dt. Regresion y minimos cuadrados polinomiales.',
-            referencia_analitica: 'Potencia mecanica teorica P = (m*a + F_friccion + m*g*sin(alpha))*v. Integral analitica para tramos con aceleracion constante.',
+            metodos_asociados: 'Interpolación polinómica local de Lagrange y Newton y spline cúbico natural para telemetría; integración de potencia con trapecio compuesto, Simpson 1/3 y Romberg.',
+            referencia_analitica: 'Para fuerza resistente equivalente constante, energía de referencia E=F*distancia; distancia analítica del perfil de velocidad conocido.',
             resultados_esperados: 'Consumo total de energia en kWh, perfil optimo v*(t), reduccion porcentual de gasto electrico y comprobacion de limites de confort de pasajeros.'
         }
     ];
@@ -139,6 +140,31 @@ function seedInitialData(db) {
                 JSON.stringify({ dist_total: 2400, segmentos_pendientes: [-0.15, 0.28, -0.05, 0.32], v_max: 6.5, peso_prom: 140000 }));
         }
     });
+}
+
+function syncWeek2Catalog(db) {
+    const updateCase = db.prepare('UPDATE caso_estudio SET descripcion = ?, metodos_asociados = ?, referencia_analitica = ?, resultados_esperados = ? WHERE codigo = ?');
+    const cases = [
+        ['Aproximación de flecha pequeña del cable con carga uniforme equivalente y extremos apoyados.', 'Diferencias finitas; LU, Jacobi, Gauss-Seidel y gradiente conjugado.', 'Solución parabólica y(x)=q*x*(L-x)/(2*H); tensión local estimada desde la pendiente.', 'Flecha y tensión estimadas, iteraciones, residuos, errores y control del límite de flecha.', 'MOD2'],
+        ['Péndulo no lineal amortiguado y forzado por viento transversal, con parámetros sintéticos.', 'EDO no lineal forzada; Runge-Kutta 2 (Heun) y RK4 contra paso RK4 refinado.', 'Solución RK4 con paso 0.01 s usada como referencia numérica.', 'Trayectoria angular, ángulo máximo, error de integración y revisión de valores finitos.', 'MOD3'],
+        ['Reconstrucción de un perfil sintético de velocidad y optimización acotada del consumo.', 'Interpolación local de Lagrange y Newton, spline cúbico; trapecio, Simpson 1/3, Romberg y sección áurea.', 'Referencia analítica con resistencia constante, arrastre proporcional a v² y recuperación fija de energía cinética.', 'Velocidad reconstruida y óptima, duración, energía, errores y cantidad de datos recortados.', 'MOD4']
+    ];
+    for (const values of cases) updateCase.run(...values);
+
+    const updateScenario = db.prepare(`UPDATE escenario SET nombre = ?, descripcion = ?, parametros_json = ?
+        WHERE tipo = ? AND caso_id = (SELECT id FROM caso_estudio WHERE codigo = ?)`);
+    const scenarios = [
+        ['Vano nominal', 'Cable de 400 m y tensión horizontal nominal; carga de cable y cabinas aproximada como distribuida.', { cableLength: 400, horizontalTension: 150000, cableMassPerMeter: 25, cabins: 4, cabinMass: 800, cableIntervals: 18 }, 'NORMAL', 'MOD2'],
+        ['Vano largo de estrés', 'Vano de 900 m con carga elevada y mayor tensión para mantener el modelo linealizado en rango.', { cableLength: 900, horizontalTension: 600000, cableMassPerMeter: 28.5, cabins: 8, cabinMass: 820, cableIntervals: 22 }, 'ESTRES', 'MOD2'],
+        ['Pretensado reducido', 'Vano de 600 m con tensión reducida; la flecha se contrasta con el límite del modelo.', { cableLength: 600, horizontalTension: 280000, cableMassPerMeter: 25, cabins: 4, cabinMass: 750, cableIntervals: 24 }, 'MAL_CONDICIONADO', 'MOD2'],
+        ['Viento nominal', 'Viento de 9.72 m/s y amortiguamiento 0.08.', { wind: 9.72, damping: 0.08, integrationStep: 0.1, duration: 30 }, 'NORMAL', 'MOD3'],
+        ['Ráfaga de estrés', 'Viento de 20.83 m/s y amortiguamiento 0.04.', { wind: 20.83, damping: 0.04, integrationStep: 0.2, duration: 30 }, 'ESTRES', 'MOD3'],
+        ['Excitación próxima a resonancia', 'Viento de 14.2 m/s y amortiguamiento reducido 0.005.', { wind: 14.2, damping: 0.005, integrationStep: 0.25, duration: 30 }, 'MAL_CONDICIONADO', 'MOD3'],
+        ['Perfil nominal de energía', 'Perfil de 2400 m, 6 m/s y masa equivalente 120000 kg; telemetría sintética con una muestra faltante.', { distance: 2400, maxSpeed: 6, rampTime: 20, maximumAcceleration: 0.3, cycleTimeAllowance: 25, dragCoefficient: 100, regenerationEfficiency: 0.45, vehicleMass: 120000, resistanceCoefficient: 0.035, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15], telemetryNoise: 0 }, 'NORMAL', 'MOD4'],
+        ['Perfil de alto flujo', 'Perfil de 2400 m, velocidad elevada, masa 155000 kg y telemetría con ruido.', { distance: 2400, maxSpeed: 7.5, rampTime: 30, maximumAcceleration: 0.25, cycleTimeAllowance: 25, dragCoefficient: 140, regenerationEfficiency: 0.5, vehicleMass: 155000, resistanceCoefficient: 0.04, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 8, 10, 11, 12, 13, 14, 15], telemetryNoise: 0.035 }, 'ESTRES', 'MOD4'],
+        ['Telemetría mal condicionada', 'Nodos agrupados y perturbación pequeña para medir la sensibilidad de la reconstrucción.', { distance: 2400, maxSpeed: 6.5, rampTime: 25, maximumAcceleration: 0.26, cycleTimeAllowance: 25, dragCoefficient: 120, regenerationEfficiency: 0.35, vehicleMass: 140000, resistanceCoefficient: 0.045, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15], telemetryNoise: 0.005 }, 'MAL_CONDICIONADO', 'MOD4']
+    ];
+    for (const [name, description, params, type, code] of scenarios) updateScenario.run(name, description, JSON.stringify(params), type, code);
 }
 
 // Funciones para guardar y recuperar simulaciones
@@ -274,10 +300,30 @@ function obtenerCasosYEscenarios() {
     return casos;
 }
 
+function guardarEjecucionSemana2(escenario, resultado) {
+    const db = getDatabase();
+    const res = db.prepare('INSERT INTO semana2_historial (fecha_ejecucion, escenario, resultado_json) VALUES (?, ?, ?)')
+        .run(new Date().toISOString(), escenario, JSON.stringify(resultado));
+    return Number(res.lastInsertRowid);
+}
+
+function listarHistorialSemana2(limite = 20) {
+    return getDatabase().prepare('SELECT id, fecha_ejecucion, escenario FROM semana2_historial ORDER BY id DESC LIMIT ?').all(limite);
+}
+
+function obtenerHistorialSemana2(id) {
+    const row = getDatabase().prepare('SELECT id, fecha_ejecucion, escenario, resultado_json FROM semana2_historial WHERE id = ?').get(id);
+    if (!row) return null;
+    return { id: row.id, fecha_ejecucion: row.fecha_ejecucion, escenario: row.escenario, resultado: JSON.parse(row.resultado_json) };
+}
+
 module.exports = {
     getDatabase,
     guardarSimulacionCompleta,
     listarSimulaciones,
     obtenerSimulacionPorId,
-    obtenerCasosYEscenarios
+    obtenerCasosYEscenarios,
+    guardarEjecucionSemana2,
+    listarHistorialSemana2,
+    obtenerHistorialSemana2
 };

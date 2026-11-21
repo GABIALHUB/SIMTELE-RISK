@@ -1,11 +1,11 @@
 {
   "name": "simtele-risk",
   "version": "1.0.0",
-  "description": "Sistema Integrador de Analisis Numerico para Seguridad y Dinamica de Telefericos Urbanos - Semana 1",
+  "description": "Sistema integrador de análisis numérico para seguridad y dinámica de teleféricos urbanos",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/verify_week1.js"
+    "test": "node test/verify_week1.js && node test/verify_week2.js"
   },
   "keywords": [
     "analisis-numerico",
@@ -20,7 +20,7 @@
   "author": "SIMTELE-RISK Team",
   "license": "MIT",
   "engines": {
-  "node": ">=22.5.0 <25.0.0"
+    "node": ">=22.5.0 <27.0.0"
 
   }
 }

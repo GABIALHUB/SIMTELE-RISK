@@ -3,10 +3,21 @@
 // =====================================================================
 
 const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
+const testDatabasePath = path.join(os.tmpdir(), `simtele-risk-week1-${process.pid}.db`);
+process.env.SIMTELE_RISK_DB_PATH = testDatabasePath;
 const db = require('../src/db/database');
 const { errorAbsoluto, errorRelativo, numeroCondicionInfinito } = require('../src/numerical/errors');
 const { compararMetodosLineales } = require('../src/numerical/linear_systems');
 const { ejecutarSimulacionModulo1, prepararPayloadParaDB } = require('../src/numerical/module1_engine');
+
+process.on('exit', () => {
+    try { db.getDatabase().close(); } catch { /* La base puede no haberse abierto si falló la inicialización. */ }
+    for (const suffix of ['', '-wal', '-shm']) {
+        try { fs.rmSync(`${testDatabasePath}${suffix}`, { force: true }); } catch { /* Limpieza temporal de pruebas. */ }
+    }
+});
 
 console.log('=========================================================================');
 console.log('  SIMTELE-RISK: INICIANDO SUITE DE PRUEBAS DE VERIFICACION (SEMANA 1)');

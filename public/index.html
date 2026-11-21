@@ -20,7 +20,7 @@
     <header class="top-header">
         <div class="header-container">
             <div class="logo-area">
-                <span class="badge-tag">SEMANA 1 - PROTOTIPO</span>
+                <span class="badge-tag">PROYECTO INTEGRADO · SEMANAS 1 Y 2</span>
                 <h1 class="main-title">SIMTELE-RISK</h1>
                 <p class="subtitle">Simulacion y Evaluacion de Riesgos en Sistemas de Transporte por Cable Urbano</p>
             </div>
@@ -36,14 +36,22 @@
         <nav class="module-nav">
             <button class="nav-tab active" data-tab="tab-mod1">MODULO 1: Detencion de Emergencia</button>
             <button class="nav-tab" data-tab="tab-lineales">LABORATORIO: Sistemas Lineales</button>
-            <button class="nav-tab" data-tab="tab-mod2">MODULO 2: Tension en Cables</button>
+            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="catenaria">MODULO 2: Catenaria y tensión</button>
             <button class="nav-tab" data-tab="tab-mod3">MODULO 3: Oscilaciones por Viento</button>
-            <button class="nav-tab" data-tab="tab-mod4">MODULO 4: Optimizacion Energetica</button>
+            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="energia">MODULO 4: Energía y velocidad</button>
             <button class="nav-tab" data-tab="tab-cobertura">COBERTURA MATEMATICA</button>
+            <button class="nav-tab" data-tab="tab-semana2">SEMANA 2: METODOS INTEGRADOS</button>
         </nav>
     </header>
 
+    <aside id="server-notice" class="server-notice" role="status" hidden></aside>
     <main class="main-content">
+
+        <section id="tab-semana2" class="tab-pane">
+            <div class="case-header-card"><div class="case-info"><h2>Semana 2 · Implementación de los módulos 2, 3 y 4</h2><p>Modelos numéricos reproducibles para catenaria, oscilaciones por viento y perfil energético. Las hipótesis y referencias de validación se muestran junto a cada resultado.</p></div></div>
+            <div class="card control-card week2-controls"><div class="card-body"><label for="week2-scenario">Escenario:</label> <select id="week2-scenario" class="form-select"><option value="NORMAL">NORMAL</option><option value="ESTRES">ESTRÉS</option><option value="MAL_CONDICIONADO">MAL CONDICIONADO</option></select> <button id="week2-run" class="btn btn-primary">Ejecutar los tres módulos</button> <button id="week2-save" class="btn btn-secondary">Guardar ejecución</button> <button id="week2-history-load" class="btn btn-outline">Historial</button><p id="week2-description"></p><div id="week2-history" class="week2-history" hidden></div></div></div>
+            <div id="week2-results" class="week2-grid"></div>
+        </section>
 
         <!-- ============================================================= -->
         <!-- TAB 1: MODULO 1 - DETENCION DE EMERGENCIA (ACTIVO Y OPERATIVO)-->
@@ -509,71 +517,19 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- TAB 3: MODULO 2 - TENSION EN CABLES (PLANTEAMIENTO Y MODELO)  -->
+        <!-- MODULO 2: CATENARIA Y TENSION DEL CABLE -->
         <!-- ============================================================= -->
         <section id="tab-mod2" class="tab-pane">
-            <div class="case-header-card">
-                <div class="case-info">
-                    <span class="badge-tag">MODULO 2 - PLANTEAMIENTO FORMAL</span>
-                    <h2>MODULO 2: Distribucion de Tension en Cables y Deformacion Elastica</h2>
-                    <p class="case-question">Pregunta Central: Cual es la distribucion de tension nodal y la flecha admisible en los vanos criticos del cable portador-tractor sometido a cargas concentradas de cabinas y peso propio?</p>
-                </div>
-            </div>
-
-            <div class="card info-card">
-                <div class="card-header">
-                    <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
-                </div>
-                <div class="card-body">
-                    <p>El perfil estatico del cable en el vano \(i\) se rige por la ecuacion diferencial de catenaria no lineal con elasticidad:</p>
-                    <div class="latex-display">
-                        $$H \frac{d^2 y}{dx^2} = -w_{cable} \sqrt{1 + \left(\frac{dy}{dx}\right)^2} - \sum_{k=1}^{M} P_k \delta(x - x_k)$$
-                    </div>
-                    <p>Discretizando mediante el metodo de diferencias finitas centrales en \(N\) nodos, la segunda derivada se aproxima como:</p>
-                    <div class="latex-display">
-                        $$\left.\frac{d^2 y}{dx^2}\right|_{x_i} \approx \frac{y_{i+1} - 2y_i + y_{i-1}}{\Delta x^2}$$
-                    </div>
-                    <p>Esto conduce a un sistema tridiagonal simetrico \(K \cdot y = f\), resoluble mediante <strong>Factorizacion de Cholesky</strong> o <strong>LU Doolittle</strong> (Burden Alg. 6.4) y metodos iterativos como <strong>Gauss-Seidel</strong> (Alg. 7.2).</p>
-                    <p>Para la reconstruccion continua del perfil de flecha entre vanos, se utiliza <strong>Interpolacion por Splines Cubicos Sujetos</strong> (Burden Alg. 3.4) garantizando continuidad de curvatura \(C^2\) en los apoyos de las torretas:</p>
-                    <div class="latex-display">
-                        $$S_j(x) = a_j + b_j(x - x_j) + c_j(x - x_j)^2 + d_j(x - x_j)^3, \quad x \in [x_j, x_{j+1}]$$
-                    </div>
-                </div>
-            </div>
-
-            <div class="card info-card">
-                <div class="card-header">
-                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
-                </div>
-                <div class="card-body">
-                    <div class="scenarios-spec-grid">
-                        <div class="spec-card">
-                            <h4>Escenario 1: Normal (Vano Plano Horizontal)</h4>
-                            <p><strong>Parametros:</strong> Longitud \(L = 400\text{ m}\), desnivel \(H = 0\text{ m}\), tension base \(T_0 = 180\text{ kN}\), peso cable \(w = 25.0\text{ kg/m}\), 2 cabinas con carga nominal de \(6500\text{ N}\) en \(x = 133\text{ m}\) y \(266\text{ m}\).</p>
-                            <p><strong>Comportamiento:</strong> Matriz simetrica estrictamente dominante por diagonales con numero de condicion bajo (\(\kappa < 45\)). Convergencia rapida de Cholesky y Gauss-Seidel.</p>
-                        </div>
-                        <div class="spec-card">
-                            <h4>Escenario 2: Estres (Vano Mayor en Alta Pendiente)</h4>
-                            <p><strong>Parametros:</strong> Longitud \(L = 900\text{ m}\), desnivel \(H = 350\text{ m}\), tension base \(T_0 = 220\text{ kN}\), \(w = 28.5\text{ kg/m}\), 4 cabinas a capacidad maxima (\(8200\text{ N}\) cada una).</p>
-                            <p><strong>Comportamiento:</strong> Acoplamiento no lineal de tension geometrica en la torreta superior. Mayor deformacion en splines cubicos.</p>
-                        </div>
-                        <div class="spec-card">
-                            <h4>Escenario 3: Mal Condicionado (Perdida Severa de Pretensado)</h4>
-                            <p><strong>Parametros:</strong> Longitud \(L = 600\text{ m}\), tension reducida criticamente \(T_0 = 35\text{ kN}\), \(w = 25.0\text{ kg/m}\), carga descentrada de \(7500\text{ N}\).</p>
-                            <p><strong>Comportamiento:</strong> Perdida de rigidez transversal geometrica que eleva el numero de condicion de la matriz a \(\kappa > 10^5\), ralentizando metodos iterativos y demostrando alta sensibilidad a perturbaciones.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 2 · CABLE</span><h2>Perfil de catenaria y tensión del cable</h2><p class="case-question">¿Cómo cambian la flecha del vano y la estabilidad del cálculo al variar la tensión horizontal y la carga distribuida?</p></div></div>
+            <div class="card info-card"><div class="card-body"><p>El cable se aproxima como una curva de flecha pequeña, con extremos apoyados y carga distribuida equivalente al peso propio más la carga media de las cabinas. La ecuación se discretiza por diferencias finitas y se resuelve con LU, Jacobi, Gauss-Seidel y gradiente conjugado.</p><p>El perfil de referencia se obtiene de la solución parabólica exacta del modelo linealizado. La validación informa error máximo por método, residuo y convergencia. Ejecuta el laboratorio de Semana 2 para comparar los tres escenarios:</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="catenaria">Abrir el módulo 2</button></div></div>
         </section>
 
-        <!-- ============================================================= -->
         <!-- TAB 4: MODULO 3 - OSCILACIONES Y RESONANCIA (PLANTEAMIENTO)   -->
         <!-- ============================================================= -->
         <section id="tab-mod3" class="tab-pane">
             <div class="case-header-card">
                 <div class="case-info">
-                    <span class="badge-tag">MODULO 3 - PLANTEAMIENTO FORMAL</span>
+                    <span class="badge-tag">MÓDULO 3 · IMPLEMENTADO CON RK2 Y RK4</span>
                     <h2>MODULO 3: Oscilaciones Inducidas por Viento y Analisis de Resonancia</h2>
                     <p class="case-question">Pregunta Central: En que bandas de velocidad de viento transversal se inducen vortices de von Karman cuya frecuencia coincide con los modos propios del pendulo cabina-cable, provocando balanceo critico en el paso por torres?</p>
                 </div>
@@ -592,7 +548,7 @@
                     <div class="latex-display">
                         $$f_{vortex} = \frac{St \cdot v_{viento}}{D_{hidraulico}}, \quad \text{con } St \approx 0.20$$
                     </div>
-                    <p>Para determinar el espectro modal de frecuencias naturales del sistema multi-cabina, se formula el problema de valores propios \(M^{-1}K \phi = \lambda \phi\), resuelto mediante el <strong>Metodo de la Potencia</strong> (Burden Alg. 9.1) y <strong>Potencia Inversa con Desplazamiento</strong> (Alg. 9.3). La respuesta transitoria subamortiguada se integra con <strong>RK4</strong>:</p>
+                    <p>En esta entrega se integra una ecuación no lineal forzada con RK2 (Heun) y RK4. Los resultados se comparan en los mismos tiempos contra RK4 con paso refinado de 0.01 s; el laboratorio reporta el error máximo y el ángulo máximo estimado. La referencia de viento y el amortiguamiento cambian por escenario:</p>
                     <div class="latex-display">
                         $$\theta(t) = e^{-\zeta \omega_0 t} \left[ C_1 \cos(\omega_d t) + C_2 \sin(\omega_d t) \right] + \theta_{forzada}(t), \quad \omega_d = \omega_0 \sqrt{1 - \zeta^2}$$
                     </div>
@@ -618,7 +574,7 @@
                         <div class="spec-card">
                             <h4>Escenario 3: Mal Condicionado (Resonancia Pura de Strouhal)</h4>
                             <p><strong>Parametros:</strong> Velocidad sintonizada en \(v_{viento} = 14.2\text{ m/s}\) coincidiendo exactamente con la primera frecuencia propia \(f_1 = 0.171\text{ Hz}\), amortiguamiento degradado \(\zeta = 0.005\).</p>
-                            <p><strong>Comportamiento:</strong> Resonancia divergente lineal hasta saturacion no lineal. Modos propios muy cercanos que retan la tasa de convergencia del metodo de la potencia.</p>
+                            <p><strong>Comportamiento:</strong> Excitación próxima a la frecuencia natural y amortiguamiento reducido. RK2 y RK4 se comparan con una integración RK4 de paso refinado; el ángulo calculado se contrasta con el límite indicativo de 12°.</p>
                         </div>
                     </div>
                 </div>
@@ -626,64 +582,13 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- TAB 5: MODULO 4 - OPTIMIZACION ENERGETICA (PLANTEAMIENTO)     -->
+        <!-- MODULO 4: PERFIL DE VELOCIDAD Y ENERGIA -->
         <!-- ============================================================= -->
         <section id="tab-mod4" class="tab-pane">
-            <div class="case-header-card">
-                <div class="case-info">
-                    <span class="badge-tag">MODULO 4 - PLANTEAMIENTO FORMAL</span>
-                    <h2>MODULO 4: Optimizacion del Consumo Energetico y Perfil de Velocidad</h2>
-                    <p class="case-question">Pregunta Central: Cual es el perfil optimo de velocidad crucero y aceleracion que minimiza la energia electrica consumida (kWh) en los motores de traccion manteniendo la capacidad nominal de pasajeros por hora y respetando los estandares de confort?</p>
-                </div>
-            </div>
-
-            <div class="card info-card">
-                <div class="card-header">
-                    <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
-                </div>
-                <div class="card-body">
-                    <p>La potencia mecanica instantanea requerida por el motor motriz se modela como:</p>
-                    <div class="latex-display">
-                        $$P(t) = \max\left(0, \frac{\left[m_{total} \frac{dv}{dt} + F_{friccion} + \Delta m \cdot g \sin(\alpha(s)) + \frac{1}{2}\rho C_x A v^2(t)\right] v(t)}{\eta_{electromecanica}}\right)$$
-                    </div>
-                    <p>El consumo total de energia en el ciclo de recorrido es la cuadratura funcional:</p>
-                    <div class="latex-display">
-                        $$E_{total} = \int_{0}^{T_{ciclo}} P(t) \, dt$$
-                    </div>
-                    <p>Esta integral se evalua mediante <strong>Cuadratura Gaussiana de Gauss-Legendre</strong> (Burden Seccion 4.7) y <strong>Simpson 1/3 Compuesto</strong>. La optimizacion del parametro de velocidad crucero \(v^*\) se resuelve mediante el <strong>Metodo de Seccion Aurea</strong> y <strong>Descenso por Gradiente</strong>:</p>
-                    <div class="latex-display">
-                        $$v_{k+1} = v_k - \gamma \nabla E_{total}(v_k)$$
-                    </div>
-                </div>
-            </div>
-
-            <div class="card info-card">
-                <div class="card-header">
-                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
-                </div>
-                <div class="card-body">
-                    <div class="scenarios-spec-grid">
-                        <div class="spec-card">
-                            <h4>Escenario 1: Normal (Ciclo Comercial Tipico)</h4>
-                            <p><strong>Parametros:</strong> Recorrido \(L = 2400\text{ m}\), \(v_{max} = 6.0\text{ m/s}\), aceleracion \(a = 0.40\text{ m/s}^2\), masa total \(120\text{ t}\), perfil trapezoidal suave.</p>
-                            <p><strong>Comportamiento:</strong> Funcion de costo de energia convexa y suave; convergencia en menos de 15 evaluaciones de seccion aurea.</p>
-                        </div>
-                        <div class="spec-card">
-                            <h4>Escenario 2: Estres (Operacion en Hora Pico a Maxima Capacidad)</h4>
-                            <p><strong>Parametros:</strong> Desbalance total de pasajeros (cabinas de subida al 100%, bajada vacias), \(v_{max} = 7.5\text{ m/s}\), aceleracion de arranque al limite cinetico.</p>
-                            <p><strong>Comportamiento:</strong> Alta demanda de potencia pico en la rampa de arranque; evaluacion rigurosa de limites termicos del motor.</p>
-                        </div>
-                        <div class="spec-card">
-                            <h4>Escenario 3: Mal Condicionado (Trazado con Inversiones Continuas de Pendiente)</h4>
-                            <p><strong>Parametros:</strong> Perfil altimetrico irregular con pendientes alternadas \([-15\%, +28\%, -5\%, +32\%]\), alternando tramos motrices y tramos regenerativos.</p>
-                            <p><strong>Comportamiento:</strong> Superficie de costo con minimos locales y gradientes casi nulos en tramos llanos, desafiando algoritmos basados en derivadas simples.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 4 · ENERGÍA</span><h2>Perfil de velocidad y optimización energética</h2><p class="case-question">¿Cómo reconstruir la velocidad de operación a partir de telemetría discreta y estimar el consumo de energía?</p></div></div>
+            <div class="card info-card"><div class="card-body"><p>Se genera un perfil de velocidad con rampas suavizadas y muestras de telemetría; se retienen algunos registros o se añade ruido según el escenario. Lagrange y Newton usan interpolación polinómica local de grado máximo 3, mientras el spline cúbico reconstruye el perfil completo. Trapecio, Simpson 1/3 y Romberg integran potencia por resistencia, arrastre y aceleración/frenado regenerativo.</p><p>La sección áurea busca una velocidad de crucero de menor consumo que respete el límite de ciclo y la aceleración máxima. Se compara distancia y energía con referencias analíticas; las velocidades no físicas se recortan y se cuentan antes de integrar.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="energia">Abrir el módulo 4</button></div></div>
         </section>
 
-        <!-- ============================================================= -->
         <!-- TAB 6: VISTA EXPLICACION MATEMATICA COMPLETA Y COBERTURA       -->
         <!-- ============================================================= -->
         <section id="tab-cobertura" class="tab-pane">
@@ -721,31 +626,37 @@
                                 <td><strong>Sistemas lineales</strong></td>
                                 <td>Jacobi; Gauss-Seidel; LU; gradiente conjugado; solucion exacta/directa de referencia</td>
                                 <td>\(Ax = b\) de tamano \(\ge 4\); residuo, condicion, iteraciones y errores</td>
-                                <td><strong>Laboratorio & Modulo 2</strong> (src/numerical/linear_systems.js)</td>
+                                <td><strong>Laboratorio lineal</strong> (src/numerical/linear_systems.js)</td>
                             </tr>
                             <tr>
                                 <td><strong>Interpolacion</strong></td>
-                                <td>Lagrange; Newton (diferencias divididas); splines cubicos</td>
+                                <td>Lagrange/Newton locales; splines cúbicos</td>
                                 <td>Mismos nodos; puntos ocultados; curvas superpuestas</td>
-                                <td><strong>Modulo 2</strong> (Interpolacion de flecha de cable)</td>
+                                <td><strong>Módulo 4</strong> (perfil de velocidad y energía)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Optimización</strong></td>
+                                <td>Sección áurea acotada bajo restricción de tiempo de ciclo y aceleración</td>
+                                <td>Velocidad óptima, energía, factibilidad y ahorro estimado</td>
+                                <td><strong>Módulo 4</strong> (perfil energético)</td>
                             </tr>
                             <tr>
                                 <td><strong>Raices</strong></td>
                                 <td>Biseccion; Newton-Raphson; secante</td>
                                 <td>Intervalo/semillas, raiz, iteraciones, error o residual</td>
-                                <td><strong>Modulo 1</strong> (Instante de detencion \(v(t) = 0\))</td>
+                                <td><strong>Módulo 1</strong> (detención)</td>
                             </tr>
                             <tr>
                                 <td><strong>Integracion</strong></td>
                                 <td>Trapecio compuesto; Simpson 1/3 compuesto; Romberg</td>
                                 <td>Integral, valor analitico o referencia, refinamiento y errores</td>
-                                <td><strong>Modulo 1 & Modulo 4</strong> (Distancia \(x(t)\) y Energia \(E_{total}\))</td>
+                                <td><strong>Módulos 1 y 4</strong> (distancia de detención y energía)</td>
                             </tr>
                             <tr>
                                 <td><strong>EDO</strong></td>
                                 <td>Runge-Kutta 2.º orden (variante Heun declarada); Runge-Kutta 4.º orden</td>
                                 <td>Condicion inicial, paso, tabla temporal, solucion de referencia y errores</td>
-                                <td><strong>Modulo 1 & Modulo 3</strong> (Detencion de cabina y oscilacion pendular)</td>
+                                <td><strong>Modulos 1 y 3</strong> (detencion y oscilacion por viento)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -878,14 +789,14 @@
                             </tr>
                             <tr>
                                 <td><strong>Semana 2</strong></td>
-                                <td>7 puntos</td>
-                                <td>Implementacion de Modulo 2 (catenaria, splines cubicos) y Modulo 3 (viento, metodos de la potencia para modos propios), estabilidad y perturbaciones.</td>
-                                <td><span class="status-badge badge-moderado">PLANIFICADO</span></td>
+                                <td>Por confirmar</td>
+                                <td>Módulos 2, 3 y 4: cable, oscilaciones y energía; tres escenarios, métodos, tablas, errores, gráficos e historial persistente.</td>
+                                <td><span class="status-badge badge-conforme">IMPLEMENTADO · RÚBRICA POR CONFIRMAR</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Semana 3</strong></td>
-                                <td>7 puntos</td>
-                                <td>Implementacion de Modulo 4 (optimizacion energetica, seccion aurea), integracion completa del sistema, pruebas de estres y defensa.</td>
+                                <td>10 puntos</td>
+                                <td>Validacion de tres escenarios en cuatro casos, comparaciones, conclusiones numéricas y del problema, persistencia, informe final y defensa.</td>
                                 <td><span class="status-badge badge-moderado">PLANIFICADO</span></td>
                             </tr>
                         </tbody>

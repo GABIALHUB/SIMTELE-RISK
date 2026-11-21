@@ -5,12 +5,128 @@
 // =====================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    explainServerRequirement();
     initNavigation();
     initModule1();
     initLinearSystems();
+    initWeek2();
     initModals();
     renderLatexMath();
 });
+
+function explainServerRequirement() {
+    if (window.location.protocol !== 'file:') return;
+    const notice = document.getElementById('server-notice');
+    notice.hidden = false;
+    notice.innerHTML = '<strong>Falta iniciar el servidor para calcular.</strong> Abrir este archivo directamente solo muestra la página. Abre PowerShell en la carpeta del proyecto, ejecuta <code>npm start</code> y visita <a href="http://localhost:3000">http://localhost:3000</a>.';
+}
+
+let lastWeek2Result = null;
+
+function initWeek2() {
+    const run = document.getElementById('week2-run');
+    if (!run) return;
+    run.addEventListener('click', runWeek2);
+    document.getElementById('week2-save').addEventListener('click', saveWeek2);
+    document.getElementById('week2-history-load').addEventListener('click', loadWeek2History);
+    document.querySelectorAll('[data-week2-case]').forEach(button => button.addEventListener('click', async () => {
+        const target = button.dataset.week2Case;
+        if (!document.querySelector(`[data-case-id="${target}"]`)) await runWeek2();
+        document.querySelector(`[data-case-id="${target}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+}
+
+async function runWeek2() {
+    try {
+        const scenario = document.getElementById('week2-scenario').value;
+        const response = await fetch(`/api/semana2?escenario=${encodeURIComponent(scenario)}`);
+        const payload = await response.json();
+        if (!response.ok || !payload.success) throw new Error(payload.error || 'No se pudo ejecutar el laboratorio');
+        showWeek2Result(payload.resultado);
+    } catch (error) {
+        alert(`No se pudo ejecutar la simulación. Inicia el servidor con «npm start» y abre http://localhost:3000. Detalle: ${error.message}`);
+    }
+}
+
+function showWeek2Result(result) {
+    lastWeek2Result = result;
+    document.getElementById('week2-scenario').value = result.scenario;
+    document.getElementById('week2-description').textContent = `Escenario ${result.scenario}: ${result.descripcion}. Resultados sintéticos para comparación de métodos.`;
+    const root = document.getElementById('week2-results');
+    root.innerHTML = '';
+    result.casos.forEach((c, index) => {
+        const card = document.createElement('article'); card.className = 'card week2-card'; card.dataset.caseId = c.id;
+        const columns = [...new Set(c.tabla.flatMap(row => Object.keys(row).filter(k => typeof row[k] !== 'object' && row[k] !== null)))];
+        const summary = c.resumen ? Object.entries(c.resumen).map(([k,v])=>`<span>${k.replaceAll('_',' ')}: ${typeof v === 'number' ? Number(v).toPrecision(4) : typeof v === 'boolean' ? (v ? 'sí' : 'no') : v}</span>`).join('') : '';
+        card.innerHTML = `<div class="card-header"><h3>${c.nombre}</h3><span>${c.metodo}</span></div><div class="card-body">${summary?`<div class="week2-summary">${summary}</div>`:''}<div class="table-responsive"><table class="data-table"><thead><tr>${columns.map(k=>`<th>${k.replaceAll('_',' ')}</th>`).join('')}</tr></thead><tbody>${c.tabla.map(row=>`<tr>${columns.map(k=>`<td>${typeof row[k]==='number'?Number(row[k]).toPrecision(6):(row[k]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="week2-charts"><div><h4>Solución / comparación</h4><canvas id="w2-s-${index}" width="520" height="210"></canvas></div><div><h4>Error / validación</h4><canvas id="w2-e-${index}" width="520" height="210"></canvas></div>${c.graficos.tension?`<div><h4>Tensión estimada a lo largo del vano</h4><canvas id="w2-t-${index}" width="520" height="210"></canvas></div>`:''}</div><details class="week2-validation"><summary>Validación numérica y supuestos</summary><pre></pre></details></div>`;
+        root.appendChild(card);
+        card.querySelector('.week2-validation pre').textContent = JSON.stringify(c.validacion, null, 2);
+        const solutionSeries = c.id === 'catenaria' ? ['referencia','LU','Jacobi','Gauss-Seidel','CG'] : c.id === 'oscilaciones' ? ['referencia','rk2','rk4'] : ['referencia','lagrange','newton','spline'];
+        const errorSeries = c.id === 'oscilaciones' ? ['rk2','rk4'] : null;
+        drawWeek2Chart(`w2-s-${index}`, c.graficos.solucion, solutionSeries);
+        drawWeek2Chart(`w2-e-${index}`, c.graficos.error, errorSeries);
+        if (c.graficos.tension) drawWeek2Chart(`w2-t-${index}`, c.graficos.tension, solutionSeries);
+    });
+}
+
+async function saveWeek2() {
+    try {
+        const scenario = lastWeek2Result?.scenario || document.getElementById('week2-scenario').value;
+        const response = await fetch('/api/semana2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ escenario: scenario }) });
+        const payload = await response.json();
+        if (!response.ok || !payload.success) throw new Error(payload.error || 'No se pudo guardar la ejecución');
+        showWeek2Result(payload.resultado);
+        document.getElementById('week2-description').textContent += ` Guardada en el historial SQLite (ID ${payload.ejecucionId}).`;
+    } catch (error) {
+        alert(`No se pudo guardar la ejecución. Detalle: ${error.message}`);
+    }
+}
+
+async function loadWeek2History() {
+    const panel = document.getElementById('week2-history'); panel.hidden = false; panel.textContent = 'Cargando historial…';
+    let payload;
+    try {
+        const response = await fetch('/api/semana2/historial?limite=20');
+        payload = await response.json();
+        if (!response.ok || !payload.success) throw new Error(payload.error || 'No se pudo cargar el historial');
+    } catch (error) {
+        panel.textContent = `No se pudo cargar el historial: ${error.message}`;
+        return;
+    }
+    panel.replaceChildren();
+    if (!payload.historial?.length) { panel.textContent = 'Todavía no hay ejecuciones guardadas.'; return; }
+    const heading = document.createElement('strong'); heading.textContent = 'Selecciona una ejecución para recuperarla:'; panel.appendChild(heading);
+    payload.historial.forEach(item => {
+        const button = document.createElement('button'); button.className = 'btn btn-outline week2-history-item';
+        button.textContent = `#${item.id} · ${item.escenario} · ${new Date(item.fecha_ejecucion).toLocaleString()}`;
+        button.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`/api/semana2/historial/${item.id}`), saved = await response.json();
+                if (!response.ok || !saved.success) throw new Error(saved.error || 'No se pudo recuperar la ejecución');
+                const expected = ['catenaria', 'oscilaciones', 'energia'];
+                if (saved.ejecucion.resultado.version !== 2 || JSON.stringify(saved.ejecucion.resultado.casos?.map(item => item.id)) !== JSON.stringify(expected)) {
+                    panel.textContent = 'Esta ejecución pertenece al laboratorio anterior y usa otros módulos. Vuelve a ejecutar y guardar el escenario para obtener un registro actualizado.';
+                    return;
+                }
+                showWeek2Result(saved.ejecucion.resultado);
+            } catch (error) { panel.textContent = `No se pudo recuperar la ejecución: ${error.message}`; }
+        });
+        panel.appendChild(button);
+    });
+}
+
+function drawWeek2Chart(id, points, multiple) {
+    const canvas = document.getElementById(id), ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#d7dce5'; ctx.beginPath(); ctx.moveTo(38,12); ctx.lineTo(38,180); ctx.lineTo(510,180); ctx.stroke();
+    const series = multiple || [null];
+    const vals = series.flatMap(k=>points.map(p=>Number(k?p[k]:p.y)).filter(Number.isFinite));
+    if (!vals.length) return;
+    let ymin=Math.min(...vals), ymax=Math.max(...vals); if (ymin===ymax) {ymin-=1; ymax+=1;}
+    const xs=points.map(p=>typeof p.x==='number'?p.x:points.indexOf(p)); let xmin=Math.min(...xs), xmax=Math.max(...xs); if(xmin===xmax)xmax=xmin+1;
+    const colors=['#6f52a2','#238a8d','#d9823b','#ba5266'];
+    series.forEach((key,s)=>{ctx.strokeStyle=colors[s%colors.length];ctx.lineWidth=2;ctx.beginPath();let started=false;points.forEach((p,i)=>{const y=Number(key?p[key]:p.y);if(!Number.isFinite(y))return;const px=40+(xs[i]-xmin)/(xmax-xmin)*465,py=175-(y-ymin)/(ymax-ymin)*155;if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);});ctx.stroke();if(key){ctx.fillStyle=colors[s%colors.length];ctx.font='10px sans-serif';ctx.fillText(key,44+(s%4)*112,12+Math.floor(s/4)*12);}});
+    ctx.fillStyle='#445';ctx.font='11px sans-serif';ctx.fillText(`y: ${ymin.toPrecision(3)} a ${ymax.toPrecision(3)}`,42,202);
+}
 
 // Funcion global para renderizar formulas LaTeX con KaTeX
 function renderLatexMath() {
@@ -181,6 +297,7 @@ async function runModule1Simulation(guardarEnDB = false) {
         }
     } catch (err) {
         console.error('Error al conectar con API:', err);
+        alert(`No se pudo calcular porque la página no está conectada al servidor. Inicia «npm start» y abre http://localhost:3000. Detalle: ${err.message}`);
     }
 }
 

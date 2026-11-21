@@ -12,6 +12,7 @@ const db = require('./db/database');
 const { ejecutarSimulacionModulo1, prepararPayloadParaDB } = require('./numerical/module1_engine');
 const { compararMetodosLineales } = require('./numerical/linear_systems');
 const { numeroCondicionInfinito, normaInfinitoMatriz, norma1Matriz } = require('./numerical/errors');
+const { runWeek2 } = require('./numerical/week2_engine');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -76,6 +77,54 @@ const server = http.createServer(async (req, res) => {
 
     try {
         // --- RUTAS DE API ---
+
+        // Laboratorio de Semana 2: módulos 2, 3 y 4 en tres escenarios reproducibles.
+        if (req.method === 'GET' && pathname === '/api/semana2/historial') {
+            const limite = parsedUrl.query.limite === undefined ? 20 : Number(parsedUrl.query.limite);
+            if (!Number.isInteger(limite) || limite < 1 || limite > 100) {
+                responderJSON(res, 400, { success: false, error: 'limite debe ser un entero entre 1 y 100' });
+                return;
+            }
+            const historial = db.listarHistorialSemana2(limite);
+            responderJSON(res, 200, { success: true, historial });
+            return;
+        }
+
+        if (req.method === 'GET' && pathname.startsWith('/api/semana2/historial/')) {
+            const id = Number(pathname.split('/').pop());
+            const ejecucion = Number.isInteger(id) ? db.obtenerHistorialSemana2(id) : null;
+            if (!ejecucion) { responderJSON(res, 404, { success: false, error: 'Ejecucion historica no encontrada' }); return; }
+            responderJSON(res, 200, { success: true, ejecucion });
+            return;
+        }
+
+        if (req.method === 'POST' && pathname === '/api/semana2') {
+            const body = await parsearCuerpoJSON(req);
+            if (!body || typeof body !== 'object' || Array.isArray(body) || (body.escenario !== undefined && typeof body.escenario !== 'string')) {
+                responderJSON(res, 400, { success: false, error: 'El cuerpo debe ser un objeto JSON y escenario debe ser texto' });
+                return;
+            }
+            const scenario = body.escenario === undefined ? 'NORMAL' : body.escenario;
+            if (!['NORMAL', 'ESTRES', 'MAL_CONDICIONADO'].includes(scenario)) {
+                responderJSON(res, 400, { success: false, error: 'Escenario inválido. Usa NORMAL, ESTRES o MAL_CONDICIONADO.' });
+                return;
+            }
+            const resultado = runWeek2(scenario);
+            const ejecucionId = db.guardarEjecucionSemana2(scenario, resultado);
+            responderJSON(res, 201, { success: true, ejecucionId, resultado });
+            return;
+        }
+
+        if (req.method === 'GET' && pathname === '/api/semana2') {
+            const scenario = parsedUrl.query.escenario === undefined ? 'NORMAL' : parsedUrl.query.escenario;
+            if (typeof scenario !== 'string' || !['NORMAL', 'ESTRES', 'MAL_CONDICIONADO'].includes(scenario)) {
+                responderJSON(res, 400, { success: false, error: 'Escenario inválido. Usa NORMAL, ESTRES o MAL_CONDICIONADO.' });
+                return;
+            }
+            const resultado = runWeek2(scenario);
+            responderJSON(res, 200, { success: true, resultado });
+            return;
+        }
 
         // 1. Obtener Casos de Estudio y Escenarios
         if (req.method === 'GET' && pathname === '/api/casos') {
@@ -197,7 +246,8 @@ const server = http.createServer(async (req, res) => {
 
     } catch (err) {
         console.error('Error interno en servidor:', err);
-        responderJSON(res, 500, { success: false, error: err.message });
+        const status = err instanceof SyntaxError || err.message.includes('Payload demasiado grande') ? 400 : 500;
+        responderJSON(res, status, { success: false, error: err.message });
     }
 });
 

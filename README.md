@@ -1,6 +1,6 @@
-# Simulador Numérico - Avance del Proyecto
+# Simulador Numérico SIMTELE-RISK
 
-Este repositorio contiene el desarrollo del proyecto orientado a la resolución de problemas físicos mediante la implementación de métodos numéricos. La herramienta permite configurar distintos escenarios de simulación y auditar la precisión de los algoritmos aplicados en cada caso de estudio.
+Este repositorio integra el prototipo y los avances de las semanas 1 y 2 para resolver problemas físicos con métodos numéricos. Incluye cuatro módulos, escenarios de simulación, persistencia de resultados y auditoría de los algoritmos.
 
 ## Integrantes del Grupo
 *   CANAVIRI SANDOVAL NEYZER ERICK
@@ -10,15 +10,16 @@ Este repositorio contiene el desarrollo del proyecto orientado a la resolución 
 
 ---
 
-## Lo que estamos entregando (Semana 1 — Modelos y primeros algoritmos · 6 puntos)
+## Alcance integrado
 
-Para este primer corte, el equipo se ha enfocado en sentar las bases lógicas, matemáticas y estructurales del simulador. Los puntos exactos que conforman nuestra entrega son:
+El proyecto reúne el planteamiento de los casos, el módulo de sistemas lineales y la ampliación de métodos numéricos para la segunda semana:
 
 *   **Planteamiento de los CUATRO casos:** Definición de la problemática y la relación directa entre los modelos físicos y los métodos numéricos que se emplearán.
 *   **Implementación del Módulo 1:** Desarrollo de la teoría de errores transversal y los algoritmos de sistemas lineales (Jacobi, Gauss-Seidel, LU, gradiente conjugado y solución de referencia).
-*   **Pruebas de escenarios:** Primeras ejecuciones y pruebas de los tres escenarios (Normal, Estrés, Mal Condicionado) aplicados a un caso. Los escenarios de los otros tres casos ya están definidos y quedan en cola para su codificación.
-*   **Prototipo inicial:** Interfaz web funcional con los cuatro módulos visibles, el Diagrama Entidad-Relación (DER) inicial de la base de datos y la configuración de este repositorio en GitHub con su README.
-*   **Documento de entrega:** Avance en formato PDF que incluye el planteamiento de fórmulas, ejemplos resueltos de forma manual, matrices/soluciones de referencia y las respectivas tablas de error.
+*   **Métodos numéricos:** Sistemas lineales, raíces, interpolación, integración y ecuaciones diferenciales ordinarias, con tablas de iteración y trayectorias cuando corresponde.
+*   **Escenarios y casos:** Interfaz para configurar casos y escenarios y comparar resultados de los métodos implementados.
+*   **Persistencia:** Base SQLite y esquema en `src/db/schema.sql` para registrar simulaciones y resultados.
+*   **Material académico:** Informe y scripts auxiliares en `docs/`, además de implementaciones MATLAB en `matlab/`.
 
 ---
 
@@ -43,10 +44,21 @@ La base de datos está diseñada para soportar las ejecuciones y almacenar el hi
 *   `simulacion` y `ejecucion_metodo`: Guardan el registro de cada corrida y los parámetros de los métodos numéricos utilizados.
 *   `iteracion_resultado` y `resultado_resumen`: Tablas destinadas a guardar el paso a paso de los cálculos y los resultados consolidados.
 
+## Laboratorio Semana 2
+
+La vista **Semana 2: métodos integrados** implementa los módulos 2, 3 y 4 en escenarios `NORMAL`, `ESTRES` y `MAL_CONDICIONADO`:
+
+* **Módulo 2:** modelo de flecha pequeña para cable con carga uniforme equivalente, discretización por diferencias finitas y comparación LU, Jacobi, Gauss-Seidel y gradiente conjugado. Se informa el perfil, la tensión estimada, los residuos y el error contra la solución parabólica exacta del modelo.
+* **Módulo 3:** ecuación no lineal de oscilación forzada integrada con RK2 (Heun) y RK4; se compara contra RK4 con paso refinado.
+* **Módulo 4:** reconstrucción de telemetría con Lagrange/Newton locales y spline cúbico; consumo integrado con trapecio, Simpson 1/3 y Romberg; búsqueda por sección áurea de una velocidad de menor consumo sujeta al tiempo de ciclo y aceleración.
+
+La API es `GET /api/semana2?escenario=NORMAL` (también `ESTRES` o `MAL_CONDICIONADO`). Se validan escenarios, parámetros internos y finitud de resultados. **Guardar ejecución** conserva el resultado JSON en SQLite y **Historial** permite recuperarlo. Los modelos son sintéticos y sus simplificaciones se describen en `docs/INFORME_SEMANA2.md`.
+
 ## Despliegue local
 
 Para probar el prototipo actual:
-1. Clonar el repositorio desde la rama `main`.
-2. Importar el script de la base de datos ubicado en `/db/schema.sql`.
-3. Iniciar el servidor backend y el cliente web.
-4. Acceder a la interfaz web local y seleccionar el Módulo 1 para comenzar a crear simulaciones.
+1. Instalar Node.js 22.5 o posterior.
+2. Abrir una terminal en la carpeta del proyecto (la que contiene `package.json`) y ejecutar `npm start`.
+3. Mantener esa terminal abierta y visitar `http://localhost:3000` en el navegador. No abrir `public/index.html` directamente: la interfaz necesita el servidor para calcular y guardar resultados.
+
+La aplicación usa módulos nativos de Node.js; la base SQLite y su esquema se encuentran en `src/db/`.

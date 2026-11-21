@@ -74,6 +74,14 @@ CREATE TABLE IF NOT EXISTS resultado_resumen (
     FOREIGN KEY (simulacion_id) REFERENCES simulacion(id) ON DELETE CASCADE
 );
 
+-- Historial completo de experimentos integrados de Semana 2.
+CREATE TABLE IF NOT EXISTS semana2_historial (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_ejecucion TEXT NOT NULL,
+    escenario TEXT CHECK(escenario IN ('NORMAL', 'ESTRES', 'MAL_CONDICIONADO')) NOT NULL,
+    resultado_json TEXT NOT NULL
+);
+
 -- Indices para busquedas y recuperacion de historicos
 CREATE INDEX IF NOT EXISTS idx_escenario_caso ON escenario(caso_id);
 CREATE INDEX IF NOT EXISTS idx_simulacion_escenario ON simulacion(escenario_id);
