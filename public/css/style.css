@@ -10,40 +10,40 @@
    ===================================================================== */
 
 :root {
-    --bg-main: #F2F6FA;
+    --bg-main: #F1F6F5;
     --bg-surface: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-card-header: #EAF1F7;
+    --bg-card-header: #E5F1EF;
     --bg-input: #FFFFFF;
     
-    --border-color: #DCE5EF;
-    --border-light: #C8D7E6;
-    --border-focus: #36577D;
+    --border-color: #D7E5E2;
+    --border-light: #BDD4CE;
+    --border-focus: #0F766E;
 
-    --color-primary: #36577D;
-    --color-primary-hover: #294564;
-    --color-primary-light: #E5EDF6;
-    --color-primary-glow: rgba(54, 87, 125, 0.18);
+    --color-primary: #0F766E;
+    --color-primary-hover: #115E59;
+    --color-primary-light: #DDF2ED;
+    --color-primary-glow: rgba(15, 118, 110, 0.2);
     
-    --color-secondary: #27847E;
-    --color-secondary-light: #E4F2F0;
+    --color-secondary: #D97706;
+    --color-secondary-light: #FFF0D8;
     
-    --color-accent-pink: #F2D9CE;
+    --color-accent-pink: #F4D7B5;
     --color-danger: #C94F55;
     --color-success: #25806C;
     --color-warning: #D89232;
 
-    --text-heading: #1C3047;
-    --text-primary: #293D53;
-    --text-secondary: #52677C;
-    --text-muted: #778A9D;
+    --text-heading: #102B3A;
+    --text-primary: #263F4B;
+    --text-secondary: #526A72;
+    --text-muted: #758A8D;
 
     --font-serif: 'Playfair Display', Georgia, "Times New Roman", serif;
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-    --shadow-soft: 0 10px 30px rgba(93, 69, 176, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
-    --shadow-card: 0 4px 20px rgba(93, 69, 176, 0.05);
+    --shadow-soft: 0 10px 30px rgba(16, 43, 58, 0.07), 0 2px 8px rgba(0, 0, 0, 0.02);
+    --shadow-card: 0 4px 20px rgba(16, 43, 58, 0.06);
     --radius-pill: 9999px;
     --radius-card: 16px;
     --radius-input: 10px;
@@ -57,7 +57,7 @@
 
 body {
     background-color: var(--bg-main);
-    background: linear-gradient(180deg, #EAF1F7 0%, #F8FAFC 32%, #F2F6FA 100%);
+    background: linear-gradient(180deg, #E5F1EF 0%, #F8FAF9 32%, #F1F6F5 100%);
     color: var(--text-primary);
     font-family: var(--font-sans);
     line-height: 1.6;
@@ -990,6 +990,105 @@ body {
     margin-top: 10px;
     border-top: 1px dashed var(--border-light);
     padding-top: 8px;
+}
+
+/* Identidad visual inspirada en las rutas urbanas del teleférico */
+.top-header {
+    background: #102B3A;
+    border-bottom-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 8px 24px rgba(10, 35, 48, 0.22);
+}
+
+.header-container {
+    position: relative;
+    isolation: isolate;
+    max-width: none;
+    padding: 22px max(28px, calc((100vw - 1344px) / 2));
+    background-image: linear-gradient(90deg, rgba(9, 32, 46, .96) 0%, rgba(9, 32, 46, .88) 48%, rgba(9, 32, 46, .42) 100%), url('../images/teleferico-lapaz.png');
+    background-size: cover;
+    background-position: center 42%;
+}
+
+.main-title,
+.subtitle { color: #fff; }
+.subtitle { color: #D9E8E6; }
+.logo-area .badge-tag {
+    color: #FFF2D8;
+    background: rgba(217, 119, 6, .2);
+    border-color: rgba(255, 208, 130, .48);
+}
+.header-actions .btn-secondary,
+.header-actions .btn-math {
+    color: #F4FAF8;
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .35);
+}
+.header-actions .btn-secondary:hover,
+.header-actions .btn-math:hover { background: var(--color-primary); }
+.btn-integrantes { background: var(--color-secondary); box-shadow: 0 4px 14px rgba(217, 119, 6, .24); }
+.btn-integrantes:hover { background: #B45309; }
+.module-nav {
+    max-width: none;
+    padding-left: max(28px, calc((100vw - 1344px) / 2));
+    padding-right: max(28px, calc((100vw - 1344px) / 2));
+    background: #123647;
+    border-top-color: rgba(255,255,255,.12);
+}
+.nav-tab { color: #D7E7E6; }
+.nav-tab:hover { color: white; background: rgba(45, 146, 132, .32); }
+.nav-tab.active { background: var(--color-secondary); border-color: var(--color-secondary); }
+.case-header-card { background: linear-gradient(135deg, #fff 0%, #EFF7F4 100%); }
+.case-math-preview { background: #F2F8F6; }
+.card-header { background: linear-gradient(110deg, #E5F1EF, #F8FAF9); }
+
+.teleferico-gallery {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 18px;
+    margin: 0 0 26px;
+}
+.teleferico-photo {
+    position: relative;
+    min-height: 230px;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: #102B3A;
+    box-shadow: var(--shadow-card);
+}
+.teleferico-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 230px;
+    object-fit: cover;
+    transition: transform .45s ease;
+}
+.teleferico-photo:hover img { transform: scale(1.035); }
+.teleferico-photo figcaption {
+    position: absolute;
+    inset: auto 0 0;
+    display: grid;
+    gap: 3px;
+    padding: 32px 20px 18px;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(8, 29, 40, .88));
+}
+.teleferico-photo figcaption strong { font-size: 1.02rem; }
+.teleferico-photo figcaption span { color: #E4EFEC; font-size: .86rem; }
+.week2-controls { border-top-color: var(--color-secondary); }
+.week2-conclusions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+.week2-conclusions section { padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: #F7FAF9; }
+.week2-conclusions h4 { margin-bottom: 6px; color: var(--color-primary); }
+.week2-conclusions p { color: var(--text-secondary); font-size: .9rem; }
+.week2-validation { margin-top: 12px; color: var(--text-secondary); }
+.week2-validation summary { cursor: pointer; font-weight: 700; color: var(--color-primary); }
+.week2-validation pre { max-height: 300px; overflow: auto; padding: 12px; margin-top: 8px; border-radius: 10px; background: #102B3A; color: #E7F3F0; font-size: .78rem; }
+
+@media (max-width: 700px) {
+    .header-container { padding: 20px; background-position: 58% center; }
+    .teleferico-gallery { grid-template-columns: 1fr; }
+    .teleferico-photo, .teleferico-photo img { min-height: 210px; }
+    .week2-conclusions { grid-template-columns: 1fr; }
 }
 /* Integrated Week 2 experiment view */
 .week2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;margin:1.25rem 0}.week2-card{min-width:0;border:1px solid var(--border-color);box-shadow:var(--shadow-card)}.week2-card .card-header{background:linear-gradient(110deg,var(--bg-card-header),#f7fafc)}.week2-card .card-header span{color:var(--color-secondary);font-size:.82rem;font-weight:700}.week2-card h4{color:var(--text-secondary)}.week2-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}.week2-charts canvas{width:100%;height:auto;border:1px solid var(--border-color);border-radius:10px;background:linear-gradient(180deg,#fff,#f9fbfd)}.week2-charts h4{margin:.5rem 0}.week2-summary{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}.week2-summary span{background:var(--color-secondary-light);border:1px solid #c9e5e1;border-radius:999px;padding:.3rem .7rem;color:#24635f;font-size:.82rem;font-weight:700}.week2-controls{border-top:3px solid var(--color-secondary)}.week2-history{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border-color)}.week2-history-item{font-size:.8rem;padding:.4rem .65rem}@media(max-width:900px){.week2-grid{grid-template-columns:1fr}.week2-charts{grid-template-columns:1fr}}

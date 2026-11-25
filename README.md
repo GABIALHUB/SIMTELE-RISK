@@ -44,15 +44,15 @@ La base de datos está diseñada para soportar las ejecuciones y almacenar el hi
 *   `simulacion` y `ejecucion_metodo`: Guardan el registro de cada corrida y los parámetros de los métodos numéricos utilizados.
 *   `iteracion_resultado` y `resultado_resumen`: Tablas destinadas a guardar el paso a paso de los cálculos y los resultados consolidados.
 
-## Laboratorio Semana 2
+## Laboratorio Semana 2 — alineado a la consigna oficial
 
-La vista **Semana 2: métodos integrados** implementa los módulos 2, 3 y 4 en escenarios `NORMAL`, `ESTRES` y `MAL_CONDICIONADO`:
+La vista **Semana 2: métodos integrados** implementa los módulos 2, 3 y 4 para los escenarios `NORMAL`, `ESTRES` y `MAL_CONDICIONADO`. El Módulo 1 (detención de emergencia) conserva su laboratorio propio y los mismos tres escenarios:
 
-* **Módulo 2:** modelo de flecha pequeña para cable con carga uniforme equivalente, discretización por diferencias finitas y comparación LU, Jacobi, Gauss-Seidel y gradiente conjugado. Se informa el perfil, la tensión estimada, los residuos y el error contra la solución parabólica exacta del modelo.
-* **Módulo 3:** ecuación no lineal de oscilación forzada integrada con RK2 (Heun) y RK4; se compara contra RK4 con paso refinado.
-* **Módulo 4:** reconstrucción de telemetría con Lagrange/Newton locales y spline cúbico; consumo integrado con trapecio, Simpson 1/3 y Romberg; búsqueda por sección áurea de una velocidad de menor consumo sujeta al tiempo de ciclo y aceleración.
+* **Módulo 2 — Deterioro y mantenimiento:** modelo sintético cuadrático, calibración de coeficientes por un sistema SPD 4×4 y LU/Jacobi/Gauss-Seidel/gradiente conjugado; bisección, Newton-Raphson y secante para estimar el cruce del umbral. Incluye referencia analítica, residuo y sensibilidad.
+* **Módulo 3 — Oscilaciones por viento:** masa-resorte-amortiguador forzado; RK2 (Heun) y RK4 contra una referencia refinada y un subexperimento analítico sin fuerza. Trapecio, Simpson 1/3 y Romberg integran `|x(t)|` y `x(t)²`.
+* **Módulo 4 — Reconstrucción de sensores:** señal analítica sintética con registros ocultos de prueba; Lagrange, Newton por diferencias divididas y spline cúbico comparados sobre los mismos nodos, con errores y sensibilidad al ruido/espaciamiento.
 
-La API es `GET /api/semana2?escenario=NORMAL` (también `ESTRES` o `MAL_CONDICIONADO`). Se validan escenarios, parámetros internos y finitud de resultados. **Guardar ejecución** conserva el resultado JSON en SQLite y **Historial** permite recuperarlo. Los modelos son sintéticos y sus simplificaciones se describen en `docs/INFORME_SEMANA2.md`.
+Cada caso presenta tablas, dos gráficas, supuestos, validación y conclusiones numérica y aplicada. La API `GET /api/semana2?escenario=NORMAL` acepta también `ESTRES` y `MAL_CONDICIONADO`. **Guardar ejecución** conserva el resultado JSON completo en SQLite; **Historial** lo recupera para volver a mostrarlo. Los modelos no usan datos reales ni son recomendaciones de seguridad. Ver límites y pruebas en `docs/INFORME_SEMANA2.md`.
 
 ## Despliegue local
 

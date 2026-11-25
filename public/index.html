@@ -16,7 +16,7 @@
 </head>
 <body>
 
-    <!-- HERO HEADER CON FONDO CLARO LAVANDA SUAVE ESTILO WISP -->
+    <!-- Encabezado visual del sistema de transporte por cable -->
     <header class="top-header">
         <div class="header-container">
             <div class="logo-area">
@@ -36,9 +36,9 @@
         <nav class="module-nav">
             <button class="nav-tab active" data-tab="tab-mod1">MODULO 1: Detencion de Emergencia</button>
             <button class="nav-tab" data-tab="tab-lineales">LABORATORIO: Sistemas Lineales</button>
-            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="catenaria">MODULO 2: Catenaria y tensión</button>
+            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="deterioro">MODULO 2: Deterioro y mantenimiento</button>
             <button class="nav-tab" data-tab="tab-mod3">MODULO 3: Oscilaciones por Viento</button>
-            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="energia">MODULO 4: Energía y velocidad</button>
+            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="sensores">MODULO 4: Sensores</button>
             <button class="nav-tab" data-tab="tab-cobertura">COBERTURA MATEMATICA</button>
             <button class="nav-tab" data-tab="tab-semana2">SEMANA 2: METODOS INTEGRADOS</button>
         </nav>
@@ -48,8 +48,12 @@
     <main class="main-content">
 
         <section id="tab-semana2" class="tab-pane">
-            <div class="case-header-card"><div class="case-info"><h2>Semana 2 · Implementación de los módulos 2, 3 y 4</h2><p>Modelos numéricos reproducibles para catenaria, oscilaciones por viento y perfil energético. Las hipótesis y referencias de validación se muestran junto a cada resultado.</p></div></div>
-            <div class="card control-card week2-controls"><div class="card-body"><label for="week2-scenario">Escenario:</label> <select id="week2-scenario" class="form-select"><option value="NORMAL">NORMAL</option><option value="ESTRES">ESTRÉS</option><option value="MAL_CONDICIONADO">MAL CONDICIONADO</option></select> <button id="week2-run" class="btn btn-primary">Ejecutar los tres módulos</button> <button id="week2-save" class="btn btn-secondary">Guardar ejecución</button> <button id="week2-history-load" class="btn btn-outline">Historial</button><p id="week2-description"></p><div id="week2-history" class="week2-history" hidden></div></div></div>
+            <div class="case-header-card"><div class="case-info"><span class="badge-tag">CONSIGNA OFICIAL · SEMANA 2</span><h2>Módulos 2, 3 y 4 · Validación numérica</h2><p>Analiza el tiempo de inspección por deterioro, las oscilaciones laterales y la reconstrucción de señales. Los modelos y datos son sintéticos y se muestran con referencias, errores y conclusiones.</p></div></div>
+            <div class="teleferico-gallery" aria-label="Contexto del sistema de teleférico">
+                <figure class="teleferico-photo teleferico-photo-wide"><img src="images/teleferico-lapaz.png" alt="Cabinas de teleférico sobre La Paz y su entorno montañoso"><figcaption><strong>Una red que conecta la ciudad</strong><span>El análisis numérico ayuda a estudiar una operación segura en rutas urbanas.</span></figcaption></figure>
+                <figure class="teleferico-photo"><img src="images/estacion-teleferico.png" alt="Cabina de teleférico acercándose a una estación"><figcaption><strong>Estaciones y operación</strong><span>Velocidad, cable y energía forman parte del modelo.</span></figcaption></figure>
+            </div>
+            <div class="card control-card week2-controls"><div class="card-body"><label for="week2-scenario">Escenario:</label> <select id="week2-scenario" class="form-select"><option value="NORMAL">NORMAL</option><option value="ESTRES">ESTRÉS</option><option value="MAL_CONDICIONADO">MAL CONDICIONADO</option></select> <button id="week2-run" class="btn btn-primary">Ejecutar módulos 2, 3 y 4</button> <button id="week2-save" class="btn btn-secondary">Guardar ejecución</button> <button id="week2-history-load" class="btn btn-outline">Historial</button><p id="week2-description"></p><div id="week2-history" class="week2-history" hidden></div></div></div>
             <div id="week2-results" class="week2-grid"></div>
         </section>
 
@@ -517,11 +521,11 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- MODULO 2: CATENARIA Y TENSION DEL CABLE -->
+        <!-- MODULO 2: DETERIORO MECANICO Y MANTENIMIENTO -->
         <!-- ============================================================= -->
         <section id="tab-mod2" class="tab-pane">
-            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 2 · CABLE</span><h2>Perfil de catenaria y tensión del cable</h2><p class="case-question">¿Cómo cambian la flecha del vano y la estabilidad del cálculo al variar la tensión horizontal y la carga distribuida?</p></div></div>
-            <div class="card info-card"><div class="card-body"><p>El cable se aproxima como una curva de flecha pequeña, con extremos apoyados y carga distribuida equivalente al peso propio más la carga media de las cabinas. La ecuación se discretiza por diferencias finitas y se resuelve con LU, Jacobi, Gauss-Seidel y gradiente conjugado.</p><p>El perfil de referencia se obtiene de la solución parabólica exacta del modelo linealizado. La validación informa error máximo por método, residuo y convergencia. Ejecuta el laboratorio de Semana 2 para comparar los tres escenarios:</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="catenaria">Abrir el módulo 2</button></div></div>
+            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 2 · MANTENIMIENTO</span><h2>Deterioro mecánico y tiempo de inspección</h2><p class="case-question">¿Cuándo alcanzaría un indicador hipotético de deterioro el umbral de inspección y cuánto cambia esa fecha ante parámetros sensibles?</p></div></div>
+            <div class="card info-card"><div class="card-body"><p>Se usa el modelo sintético (D(t)=D_0+αt+βt²). Bisección, Newton-Raphson y secante estiman el cruce (D(t)=D_{umbral}), que se contrasta con la raíz cuadrática analítica y se acompaña de errores, residuales y sensibilidad del tiempo a los parámetros.</p><p>La calibración numérica auxiliar resuelve un sistema SPD de tamaño 4 con LU, Jacobi, Gauss-Seidel y gradiente conjugado, comparando cada aproximación con la solución conocida. Ejecuta Semana 2 para ver tablas, gráficas y escenarios. El indicador es hipotético: no estima el estado de una instalación real.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="deterioro">Abrir el módulo 2</button></div></div>
         </section>
 
         <!-- TAB 4: MODULO 3 - OSCILACIONES Y RESONANCIA (PLANTEAMIENTO)   -->
@@ -540,41 +544,38 @@
                     <h3>Formulacion Matematica y Ecuaciones Gobernantes en LaTeX</h3>
                 </div>
                 <div class="card-body">
-                    <p>La dinamica lateral de balanceo de la cabina suspendida como pendulo no lineal forzado se expresa como:</p>
+                    <p>La dinámica lateral simplificada de la cabina se representa con un sistema masa-resorte-amortiguador lineal excitado por el viento:</p>
                     <div class="latex-display">
-                        $$\frac{d^2\theta}{dt^2} + 2\zeta\omega_0 \frac{d\theta}{dt} + \frac{g}{L_{pendulo}} \sin(\theta) = \frac{F_{viento}(t) L_{cg}}{I_{total}}$$
+                        $$m x'' + c x' + kx = F_0\sin(2\pi f_{vortex}t), \quad x(0)=x_0,\;x'(0)=v_0$$
                     </div>
                     <p>La excitacion por desprendimiento de vortices de von Karman sigue la relacion de Strouhal:</p>
                     <div class="latex-display">
                         $$f_{vortex} = \frac{St \cdot v_{viento}}{D_{hidraulico}}, \quad \text{con } St \approx 0.20$$
                     </div>
-                    <p>En esta entrega se integra una ecuación no lineal forzada con RK2 (Heun) y RK4. Los resultados se comparan en los mismos tiempos contra RK4 con paso refinado de 0.01 s; el laboratorio reporta el error máximo y el ángulo máximo estimado. La referencia de viento y el amortiguamiento cambian por escenario:</p>
+                    <p>RK2 (Heun) y RK4 se comparan contra una referencia RK4 independiente de paso fino. Un subexperimento sin fuerza se contrasta con la solución analítica subamortiguada. Además, trapecio, Simpson 1/3 y Romberg integran las magnitudes acumuladas |x(t)| y x(t)².</p>
                     <div class="latex-display">
-                        $$\theta(t) = e^{-\zeta \omega_0 t} \left[ C_1 \cos(\omega_d t) + C_2 \sin(\omega_d t) \right] + \theta_{forzada}(t), \quad \omega_d = \omega_0 \sqrt{1 - \zeta^2}$$
+                        $$f_{vortex}=St\frac{v_{viento}}{D}, \quad \omega_0=\sqrt{\frac{k}{m}}, \quad \zeta=\frac{c}{2\sqrt{km}}$$
                     </div>
                 </div>
             </div>
 
             <div class="card info-card">
                 <div class="card-header">
-                    <h3>Definicion de los Tres Escenarios de Prueba</h3>
+                    <h3>Escenarios de cálculo reproducibles</h3>
                 </div>
                 <div class="card-body">
                     <div class="scenarios-spec-grid">
                         <div class="spec-card">
-                            <h4>Escenario 1: Normal (Viento Laminar Constante)</h4>
-                            <p><strong>Parametros:</strong> Velocidad de viento \(v_{viento} = 35\text{ km/h}\) (\(9.72\text{ m/s}\)), longitud \(L = 8.5\text{ m}\), amortiguamiento \(\zeta = 0.08\).</p>
-                            <p><strong>Comportamiento:</strong> Oscilacion de baja amplitud contenida dentro de \(\theta_{max} < 4.5^\circ\), muy por debajo del limite admisible en torreta (\(12.0^\circ\)).</p>
+                            <h4>NORMAL</h4>
+                            <p>Masa y rigidez nominales, viento moderado y amortiguamiento subcrítico.</p>
                         </div>
                         <div class="spec-card">
-                            <h4>Escenario 2: Estres (Rafaga Extrema en Paso por Torre)</h4>
-                            <p><strong>Parametros:</strong> Rafagas cruzadas de hasta \(75\text{ km/h}\) (\(20.83\text{ m/s}\)) con perfil de viento en rampa senoidal durante 5 segundos al cruzar el cabezal de rodillos.</p>
-                            <p><strong>Comportamiento:</strong> Respuesta transitoria no lineal con picos de aceleracion lateral capturados por RK4.</p>
+                            <h4>ESTRÉS</h4>
+                            <p>Fuerza externa más intensa y paso temporal mayor para comparar precisión y estabilidad.</p>
                         </div>
                         <div class="spec-card">
-                            <h4>Escenario 3: Mal Condicionado (Resonancia Pura de Strouhal)</h4>
-                            <p><strong>Parametros:</strong> Velocidad sintonizada en \(v_{viento} = 14.2\text{ m/s}\) coincidiendo exactamente con la primera frecuencia propia \(f_1 = 0.171\text{ Hz}\), amortiguamiento degradado \(\zeta = 0.005\).</p>
-                            <p><strong>Comportamiento:</strong> Excitación próxima a la frecuencia natural y amortiguamiento reducido. RK2 y RK4 se comparan con una integración RK4 de paso refinado; el ángulo calculado se contrasta con el límite indicativo de 12°.</p>
+                            <h4>MAL CONDICIONADO</h4>
+                            <p>Excitación próxima a la frecuencia natural y amortiguamiento bajo; se reporta la razón de frecuencias.</p>
                         </div>
                     </div>
                 </div>
@@ -582,11 +583,11 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- MODULO 4: PERFIL DE VELOCIDAD Y ENERGIA -->
+        <!-- MODULO 4: RECONSTRUCCION DE SENALES DE SENSORES -->
         <!-- ============================================================= -->
         <section id="tab-mod4" class="tab-pane">
-            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 4 · ENERGÍA</span><h2>Perfil de velocidad y optimización energética</h2><p class="case-question">¿Cómo reconstruir la velocidad de operación a partir de telemetría discreta y estimar el consumo de energía?</p></div></div>
-            <div class="card info-card"><div class="card-body"><p>Se genera un perfil de velocidad con rampas suavizadas y muestras de telemetría; se retienen algunos registros o se añade ruido según el escenario. Lagrange y Newton usan interpolación polinómica local de grado máximo 3, mientras el spline cúbico reconstruye el perfil completo. Trapecio, Simpson 1/3 y Romberg integran potencia por resistencia, arrastre y aceleración/frenado regenerativo.</p><p>La sección áurea busca una velocidad de crucero de menor consumo que respete el límite de ciclo y la aceleración máxima. Se compara distancia y energía con referencias analíticas; las velocidades no físicas se recortan y se cuentan antes de integrar.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="energia">Abrir el módulo 4</button></div></div>
+            <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 4 · SENSORES</span><h2>Reconstrucción de señales y datos faltantes</h2><p class="case-question">¿Cómo afectan los registros ausentes, el ruido y el espaciamiento de nodos a la reconstrucción?</p></div></div>
+            <div class="card info-card"><div class="card-body"><p>La señal sintética (y(t)=sin(t)+0.15cos(2t)) se muestrea y algunos puntos se ocultan como prueba. Lagrange, Newton por diferencias divididas y spline cúbico reciben exactamente los mismos nodos; se comparan RMSE, error máximo y error relativo en puntos no usados para ajustar.</p><p>Los escenarios agregan ruido o agrupan los nodos para estudiar estabilidad y confiabilidad. La referencia es analítica y se reporta la sensibilidad de las estimaciones a las perturbaciones.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="sensores">Abrir el módulo 4</button></div></div>
         </section>
 
         <!-- TAB 6: VISTA EXPLICACION MATEMATICA COMPLETA Y COBERTURA       -->
@@ -626,31 +627,25 @@
                                 <td><strong>Sistemas lineales</strong></td>
                                 <td>Jacobi; Gauss-Seidel; LU; gradiente conjugado; solucion exacta/directa de referencia</td>
                                 <td>\(Ax = b\) de tamano \(\ge 4\); residuo, condicion, iteraciones y errores</td>
-                                <td><strong>Laboratorio lineal</strong> (src/numerical/linear_systems.js)</td>
+                                <td><strong>Módulos 1 y 2</strong> (laboratorio lineal y ajuste SPD de deterioro)</td>
                             </tr>
                             <tr>
                                 <td><strong>Interpolacion</strong></td>
-                                <td>Lagrange/Newton locales; splines cúbicos</td>
+                                <td>Lagrange; Newton por diferencias divididas; splines cúbicos</td>
                                 <td>Mismos nodos; puntos ocultados; curvas superpuestas</td>
-                                <td><strong>Módulo 4</strong> (perfil de velocidad y energía)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Optimización</strong></td>
-                                <td>Sección áurea acotada bajo restricción de tiempo de ciclo y aceleración</td>
-                                <td>Velocidad óptima, energía, factibilidad y ahorro estimado</td>
-                                <td><strong>Módulo 4</strong> (perfil energético)</td>
+                                <td><strong>Módulo 4</strong> (reconstrucción de señales de sensores; puntos de prueba ocultados)</td>
                             </tr>
                             <tr>
                                 <td><strong>Raices</strong></td>
                                 <td>Biseccion; Newton-Raphson; secante</td>
                                 <td>Intervalo/semillas, raiz, iteraciones, error o residual</td>
-                                <td><strong>Módulo 1</strong> (detención)</td>
+                                <td><strong>Módulos 1 y 2</strong> (detención y cruce del umbral de deterioro)</td>
                             </tr>
                             <tr>
                                 <td><strong>Integracion</strong></td>
                                 <td>Trapecio compuesto; Simpson 1/3 compuesto; Romberg</td>
                                 <td>Integral, valor analitico o referencia, refinamiento y errores</td>
-                                <td><strong>Módulos 1 y 4</strong> (distancia de detención y energía)</td>
+                                <td><strong>Módulos 1 y 3</strong> (distancia de detención e integral de vibración)</td>
                             </tr>
                             <tr>
                                 <td><strong>EDO</strong></td>
@@ -789,9 +784,9 @@
                             </tr>
                             <tr>
                                 <td><strong>Semana 2</strong></td>
-                                <td>Por confirmar</td>
-                                <td>Módulos 2, 3 y 4: cable, oscilaciones y energía; tres escenarios, métodos, tablas, errores, gráficos e historial persistente.</td>
-                                <td><span class="status-badge badge-conforme">IMPLEMENTADO · RÚBRICA POR CONFIRMAR</span></td>
+                                <td>9 puntos</td>
+                                <td>Módulos 2, 3 y 4 alineados a la consigna oficial; métodos, escenarios, errores, gráficas, conclusiones dobles e historial persistente.</td>
+                                <td><span class="status-badge badge-conforme">IMPLEMENTADO · PRUEBAS AUTOMATIZADAS</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Semana 3</strong></td>
@@ -836,23 +831,23 @@
                         </div>
                     </div>
 
-                    <!-- CARD DE MARIAL GABRIELA RODAS CHAMBI RESALTADA COMO ENCARGADA DE SEMANA 1 -->
-                    <div class="integrante-card card-encargada">
+                    <div class="integrante-card">
                         <span class="integrante-index">3</span>
                         <div class="integrante-info">
                             <h4>RODAS CHAMBI, Marial Gabriela</h4>
-                            <p class="integrante-role-destacado">Encargada de SEMANA 1 — Modelos y primeros algoritmos</p>
+                            <p class="integrante-role">Modelado matemático y desarrollo de los métodos numéricos de la Semana 1.</p>
                             <p class="integrante-role">Formulacion matematica de los 4 casos, EDO y cuadratura del Modulo 1, coordinacion y resolucion de sistemas lineales.</p>
-                            <span class="integrante-tag tag-encargada">Responsable de Entrega Semana 1</span>
+                            <span class="integrante-tag">Métodos Numéricos · Semana 1</span>
                         </div>
                     </div>
 
-                    <div class="integrante-card">
+                    <div class="integrante-card card-encargada">
                         <span class="integrante-index">4</span>
                         <div class="integrante-info">
                             <h4>VARGAS CHOQUE, Nicole Fabiola</h4>
-                            <p class="integrante-role">Persistencia en Base de Datos SQLite (DER) y Prototipo Web</p>
-                            <span class="integrante-tag">Arquitectura de Datos y Visualizacion</span>
+                            <p class="integrante-role-destacado">Encargada de SEMANA 2 — Métodos numéricos integrados</p>
+                            <p class="integrante-role">Coordinación e implementación de los módulos de catenaria, oscilaciones por viento y perfil energético, con validación de resultados.</p>
+                            <span class="integrante-tag tag-encargada">Responsable de Entrega Semana 2</span>
                         </div>
                     </div>
                 </div>

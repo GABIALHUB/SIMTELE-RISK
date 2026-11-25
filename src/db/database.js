@@ -143,26 +143,26 @@ function seedInitialData(db) {
 }
 
 function syncWeek2Catalog(db) {
-    const updateCase = db.prepare('UPDATE caso_estudio SET descripcion = ?, metodos_asociados = ?, referencia_analitica = ?, resultados_esperados = ? WHERE codigo = ?');
-    const cases = [
-        ['Aproximación de flecha pequeña del cable con carga uniforme equivalente y extremos apoyados.', 'Diferencias finitas; LU, Jacobi, Gauss-Seidel y gradiente conjugado.', 'Solución parabólica y(x)=q*x*(L-x)/(2*H); tensión local estimada desde la pendiente.', 'Flecha y tensión estimadas, iteraciones, residuos, errores y control del límite de flecha.', 'MOD2'],
-        ['Péndulo no lineal amortiguado y forzado por viento transversal, con parámetros sintéticos.', 'EDO no lineal forzada; Runge-Kutta 2 (Heun) y RK4 contra paso RK4 refinado.', 'Solución RK4 con paso 0.01 s usada como referencia numérica.', 'Trayectoria angular, ángulo máximo, error de integración y revisión de valores finitos.', 'MOD3'],
-        ['Reconstrucción de un perfil sintético de velocidad y optimización acotada del consumo.', 'Interpolación local de Lagrange y Newton, spline cúbico; trapecio, Simpson 1/3, Romberg y sección áurea.', 'Referencia analítica con resistencia constante, arrastre proporcional a v² y recuperación fija de energía cinética.', 'Velocidad reconstruida y óptima, duración, energía, errores y cantidad de datos recortados.', 'MOD4']
+    const updateCaseRow = db.prepare('UPDATE caso_estudio SET nombre = ?, descripcion = ?, pregunta_central = ?, metodos_asociados = ?, referencia_analitica = ?, resultados_esperados = ? WHERE codigo = ?');
+    const caseDetails = [
+        ['Deterioro mecánico y mantenimiento', 'Indicador hipotético de desgaste modelado con datos sintéticos para estimar un umbral de inspección.', '¿Cuándo alcanzaría un indicador hipotético de deterioro un umbral de inspección?', 'Modelo cuadrático y raíces; calibración de coeficientes por métodos lineales SPD.', 'D(t)=D0+alpha*t+beta*t² y raíz cuadrática positiva; A x=b SPD con solución conocida.', 'Tiempo al umbral, sensibilidad, residuo, condicionamiento y efecto hipotético del retraso.', 'MOD2'],
+        ['Oscilaciones por viento', 'Vibración lateral sintética de una cabina representada mediante masa, resorte y amortiguador.', '¿Cómo cambia la oscilación al variar la fuerza externa, el amortiguamiento y los parámetros del modelo?', 'EDO masa-resorte-amortiguador; RK2 (Heun), RK4, trapecio, Simpson 1/3 y Romberg.', 'Solución analítica subamortiguada con fuerza nula; RK4 refinado para excitación forzada.', 'Trayectoria, amplitud, integrales de |x(t)| y x(t)², errores y límites del modelo.', 'MOD3'],
+        ['Reconstrucción de señales de sensores', 'Reconstrucción de señal sintética con muestras omitidas, datos de prueba ocultos y perturbaciones reproducibles.', '¿Cómo afectan datos faltantes, ruido y espaciamiento de nodos a la reconstrucción?', 'Lagrange, Newton por diferencias divididas y spline cúbico natural sobre nodos comunes.', 'y(t)=sin(t)+0.15*cos(2t); muestras retiradas antes del ajuste para medir error real.', 'Predicciones ocultadas, RMSE, error máximo/relativo y estabilidad ante ruido y espaciamiento.', 'MOD4']
     ];
-    for (const values of cases) updateCase.run(...values);
+    for (const values of caseDetails) updateCaseRow.run(...values);
 
     const updateScenario = db.prepare(`UPDATE escenario SET nombre = ?, descripcion = ?, parametros_json = ?
         WHERE tipo = ? AND caso_id = (SELECT id FROM caso_estudio WHERE codigo = ?)`);
     const scenarios = [
-        ['Vano nominal', 'Cable de 400 m y tensión horizontal nominal; carga de cable y cabinas aproximada como distribuida.', { cableLength: 400, horizontalTension: 150000, cableMassPerMeter: 25, cabins: 4, cabinMass: 800, cableIntervals: 18 }, 'NORMAL', 'MOD2'],
-        ['Vano largo de estrés', 'Vano de 900 m con carga elevada y mayor tensión para mantener el modelo linealizado en rango.', { cableLength: 900, horizontalTension: 600000, cableMassPerMeter: 28.5, cabins: 8, cabinMass: 820, cableIntervals: 22 }, 'ESTRES', 'MOD2'],
-        ['Pretensado reducido', 'Vano de 600 m con tensión reducida; la flecha se contrasta con el límite del modelo.', { cableLength: 600, horizontalTension: 280000, cableMassPerMeter: 25, cabins: 4, cabinMass: 750, cableIntervals: 24 }, 'MAL_CONDICIONADO', 'MOD2'],
-        ['Viento nominal', 'Viento de 9.72 m/s y amortiguamiento 0.08.', { wind: 9.72, damping: 0.08, integrationStep: 0.1, duration: 30 }, 'NORMAL', 'MOD3'],
-        ['Ráfaga de estrés', 'Viento de 20.83 m/s y amortiguamiento 0.04.', { wind: 20.83, damping: 0.04, integrationStep: 0.2, duration: 30 }, 'ESTRES', 'MOD3'],
-        ['Excitación próxima a resonancia', 'Viento de 14.2 m/s y amortiguamiento reducido 0.005.', { wind: 14.2, damping: 0.005, integrationStep: 0.25, duration: 30 }, 'MAL_CONDICIONADO', 'MOD3'],
-        ['Perfil nominal de energía', 'Perfil de 2400 m, 6 m/s y masa equivalente 120000 kg; telemetría sintética con una muestra faltante.', { distance: 2400, maxSpeed: 6, rampTime: 20, maximumAcceleration: 0.3, cycleTimeAllowance: 25, dragCoefficient: 100, regenerationEfficiency: 0.45, vehicleMass: 120000, resistanceCoefficient: 0.035, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15], telemetryNoise: 0 }, 'NORMAL', 'MOD4'],
-        ['Perfil de alto flujo', 'Perfil de 2400 m, velocidad elevada, masa 155000 kg y telemetría con ruido.', { distance: 2400, maxSpeed: 7.5, rampTime: 30, maximumAcceleration: 0.25, cycleTimeAllowance: 25, dragCoefficient: 140, regenerationEfficiency: 0.5, vehicleMass: 155000, resistanceCoefficient: 0.04, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 8, 10, 11, 12, 13, 14, 15], telemetryNoise: 0.035 }, 'ESTRES', 'MOD4'],
-        ['Telemetría mal condicionada', 'Nodos agrupados y perturbación pequeña para medir la sensibilidad de la reconstrucción.', { distance: 2400, maxSpeed: 6.5, rampTime: 25, maximumAcceleration: 0.26, cycleTimeAllowance: 25, dragCoefficient: 120, regenerationEfficiency: 0.35, vehicleMass: 140000, resistanceCoefficient: 0.045, telemetryNodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15], telemetryNoise: 0.005 }, 'MAL_CONDICIONADO', 'MOD4']
+        ['Desgaste nominal', 'Indicador D(t) con crecimiento nominal; se estima la primera inspección.', { d0: 0.12, alpha: 0.002, beta: 0.00001, threshold: 0.4, deteriorationHorizon: 250 }, 'NORMAL', 'MOD2'],
+        ['Desgaste acelerado', 'Tasas de deterioro mayores para estudiar el adelantamiento de la inspección.', { d0: 0.12, alpha: 0.003, beta: 0.000025, threshold: 0.4, deteriorationHorizon: 180 }, 'ESTRES', 'MOD2'],
+        ['Cruce sensible al umbral', 'Crecimiento lento y derivada pequeña en el cruce; subexperimento de sensibilidad matemática.', { d0: 0.15, alpha: 0.0004, beta: 0.000002, threshold: 0.4, deteriorationHorizon: 500 }, 'MAL_CONDICIONADO', 'MOD2'],
+        ['Vibración nominal', 'Fuerza moderada y amortiguamiento subcrítico.', { wind: 10, mass: 800, stiffness: 2500, dampingRatio: 0.08, integrationStep: 0.05, duration: 20 }, 'NORMAL', 'MOD3'],
+        ['Excitación intensa', 'Viento intenso y frecuencia de vórtices próxima al modo natural.', { wind: 17, mass: 800, stiffness: 2500, dampingRatio: 0.08, integrationStep: 0.1, duration: 20 }, 'ESTRES', 'MOD3'],
+        ['Resonancia sensible', 'Amortiguamiento bajo y frecuencia forzante próxima a la natural.', { wind: 17, mass: 800, stiffness: 2500, dampingRatio: 0.008, integrationStep: 0.2, duration: 20 }, 'MAL_CONDICIONADO', 'MOD3'],
+        ['Sensores regulares', 'Nodos distribuidos sobre la señal sintética sin ruido.', { sensorNoise: 0, sensorNodeIndices: [0, 3, 6, 9, 12, 15, 18, 20] }, 'NORMAL', 'MOD4'],
+        ['Sensores con ruido', 'Nodos más dispersos y ruido determinista de amplitud acotada.', { sensorNoise: 0.04, sensorNodeIndices: [0, 2, 5, 8, 11, 14, 17, 20] }, 'ESTRES', 'MOD4'],
+        ['Sensores agrupados', 'Siete nodos agrupados en un extremo y uno en el otro; se expone la sensibilidad del polinomio global.', { sensorNoise: 0.025, sensorNodeIndices: [0, 1, 2, 3, 4, 5, 6, 20] }, 'MAL_CONDICIONADO', 'MOD4']
     ];
     for (const [name, description, params, type, code] of scenarios) updateScenario.run(name, description, JSON.stringify(params), type, code);
 }
