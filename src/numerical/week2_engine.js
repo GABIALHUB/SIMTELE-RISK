@@ -141,7 +141,10 @@ function solveSensors(scenario, p) {
     const sortedIndices = [...p.sensorNodeIndices].sort((a, b) => a - b);
     const nodeSet = new Set(sortedIndices);
     const xs = sortedIndices.map(i => fullX[i]);
-    const ys = sortedIndices.map(i => truth(fullX[i]) + noiseAt(i));
+    const observedNoise = sortedIndices.map(noiseAt);
+    const noiseRms = Math.sqrt(observedNoise.reduce((sum, value) => sum + value ** 2, 0) / observedNoise.length);
+    const ys = sortedIndices.map((i, position) => truth(fullX[i]) + observedNoise[position]);
+    const observationsByIndex = new Map(sortedIndices.map((index, position) => [index, ys[position]]));
     const heldIndices = fullX.map((_, i) => i).filter(i => !nodeSet.has(i));
     const heldX = heldIndices.map(i => fullX[i]);
     const fits = { Lagrange: x => lagrange(xs, ys, x), Newton: x => newton(xs, ys, x), Spline: x => splineCubicoNatural(xs, ys, x) };
@@ -164,11 +167,11 @@ function solveSensors(scenario, p) {
     const gaps = xs.slice(1).map((x, i) => x - xs[i]), spacingRatio = Math.max(...gaps) / Math.min(...gaps);
     const plotX = Array.from({ length: 101 }, (_, i) => fullX.at(-1) * i / 100);
     return resultadoComun('sensores', 'Módulo 4 · Reconstrucción de señales de sensores', 'Interpolación global de Lagrange, Newton por diferencias divididas y spline cúbico natural',
-        { escenario: scenario, funcion_sintetica: 'y(t)=sin(t)+0.15*cos(2t)', nodos_medidos: xs.length, puntos_ocultados_de_prueba: heldX.length, ruido_sensor_rms: p.sensorNoise, cociente_espaciamiento_max_min: spacingRatio, rmse_lagrange: metrics.Lagrange.rmse, rmse_newton: metrics.Newton.rmse, rmse_spline: metrics.Spline.rmse },
+        { escenario: scenario, funcion_sintetica: 'y(t)=sin(t)+0.15*cos(2t)', nodos_medidos: xs.length, puntos_ocultados_de_prueba: heldX.length, amplitud_maxima_ruido_configurada: p.sensorNoise, ruido_sensor_rms_observado: noiseRms, cociente_espaciamiento_max_min: spacingRatio, rmse_lagrange: metrics.Lagrange.rmse, rmse_newton: metrics.Newton.rmse, rmse_spline: metrics.Spline.rmse },
         rows,
-        plotX.map(x => ({ x, referencia: truth(x), lagrange: fits.Lagrange(x), newton: fits.Newton(x), spline: fits.Spline(x), nodo_medido: xs.includes(x) ? 1 : 0 })),
+        plotX.map(x => { const index = Math.round(x / 0.3), node = sortedIndices.includes(index) && Math.abs(fullX[index] - x) < 1e-9; return { x, referencia: truth(x), lagrange: fits.Lagrange(x), newton: fits.Newton(x), spline: fits.Spline(x), nodo_medido: node, observacion: node ? observationsByIndex.get(index) : null }; }),
         rows.map(row => ({ x: row.t_s, lagrange: row.error_lagrange_absoluto, newton: row.error_newton_absoluto, spline: row.error_spline_absoluto })),
-        { referencia_analitica: 'y(t)=sin(t)+0.15*cos(2t); los nodos de prueba se ocultan al interpolar.', indices_medidos: sortedIndices, puntos_prueba_ocultados: heldIndices, rmse_por_metodo: Object.fromEntries(Object.entries(metrics).map(([key, value]) => [key, value.rmse])), error_maximo_absoluto_por_metodo: Object.fromEntries(Object.entries(metrics).map(([key, value]) => [key, value.error_maximo])), error_relativo_maximo_en_referencias_no_cercanas_a_cero: relativeError, sensibilidad_rmse_a_perturbacion_sensor_por_metodo: perturbationSensitivity, ruido_sensor_rms: p.sensorNoise, cociente_espaciamiento_maximo_minimo: spacingRatio, mismos_nodos_para_los_tres_interpoladores: true, todos_los_valores_finitos: rows.every(row => Object.values(row).every(value => value === null || Number.isFinite(value))) },
+        { referencia_analitica: 'y(t)=sin(t)+0.15*cos(2t); los nodos de prueba se ocultan al interpolar.', indices_medidos: sortedIndices, puntos_prueba_ocultados: heldIndices, ruido_sensor_amplitud_configurada: p.sensorNoise, ruido_sensor_rms_observado: noiseRms, rmse_por_metodo: Object.fromEntries(Object.entries(metrics).map(([key, value]) => [key, value.rmse])), error_maximo_absoluto_por_metodo: Object.fromEntries(Object.entries(metrics).map(([key, value]) => [key, value.error_maximo])), error_relativo_maximo_en_referencias_no_cercanas_a_cero: relativeError, sensibilidad_rmse_a_perturbacion_sensor_por_metodo: perturbationSensitivity, cociente_espaciamiento_maximo_minimo: spacingRatio, mismos_nodos_para_los_tres_interpoladores: true, todos_los_valores_finitos: rows.every(row => Object.values(row).every(value => value === null || Number.isFinite(value))) },
         { numerica: `Lagrange, Newton y spline usan exactamente los mismos ${xs.length} nodos medidos; el error se calcula solo en ${heldX.length} muestras ocultadas, con RMSE, error máximo y sensibilidad al ruido.`, problema: `La curva recupera una señal sintética de sensores. El escenario ${scenario} permite observar el efecto del ruido o del espaciamiento desfavorable; no representa telemetría real.` });
 }
 

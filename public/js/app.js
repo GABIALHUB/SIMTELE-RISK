@@ -58,7 +58,7 @@ function showWeek2Result(result) {
         const card = document.createElement('article'); card.className = 'card week2-card'; card.dataset.caseId = c.id;
         const columns = [...new Set(c.tabla.flatMap(row => Object.keys(row).filter(k => typeof row[k] !== 'object' && row[k] !== null)))];
         const summary = c.resumen ? Object.entries(c.resumen).map(([k,v])=>`<span>${k.replaceAll('_',' ')}: ${typeof v === 'number' ? Number(v).toPrecision(4) : typeof v === 'boolean' ? (v ? 'sí' : 'no') : v}</span>`).join('') : '';
-        card.innerHTML = `<div class="card-header"><h3>${c.nombre}</h3><span>${c.metodo}</span></div><div class="card-body">${summary?`<div class="week2-summary">${summary}</div>`:''}<div class="table-responsive"><table class="data-table"><thead><tr>${columns.map(k=>`<th>${k.replaceAll('_',' ')}</th>`).join('')}</tr></thead><tbody>${c.tabla.map(row=>`<tr>${columns.map(k=>`<td>${typeof row[k]==='number'?Number(row[k]).toPrecision(6):(typeof row[k]==='boolean'?(row[k]?'Sí':'No'):(row[k]??'—'))}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="week2-charts"><div><h4>Solución y comparación</h4><canvas id="w2-s-${index}" width="520" height="210"></canvas></div><div><h4>Error, convergencia o sensibilidad</h4><canvas id="w2-e-${index}" width="520" height="210"></canvas></div></div><div class="week2-conclusions"><section><h4>Conclusión numérica</h4><p class="week2-numerical-conclusion"></p></section><section><h4>Conclusión del problema</h4><p class="week2-problem-conclusion"></p></section></div><details class="week2-validation"><summary>Validación numérica y supuestos</summary><pre></pre></details></div>`;
+        card.innerHTML = `<div class="card-header"><h3>${c.nombre}</h3><span>${c.metodo}</span></div><div class="card-body">${summary?`<div class="week2-summary">${summary}</div>`:''}<div class="table-responsive"><table class="data-table"><thead><tr>${columns.map(k=>`<th>${k.replaceAll('_',' ')}</th>`).join('')}</tr></thead><tbody>${c.tabla.map(row=>`<tr>${columns.map(k=>`<td>${typeof row[k]==='number'?Number(row[k]).toPrecision(6):(typeof row[k]==='boolean'?(row[k]?'Sí':'No'):(row[k]??'—'))}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="week2-charts"><div><h4>${c.id === 'sensores' ? 'Señal reconstruida y muestras medidas' : 'Solución y comparación'}</h4><canvas id="w2-s-${index}" width="520" height="210"></canvas></div><div><h4>Error, convergencia o sensibilidad</h4><canvas id="w2-e-${index}" width="520" height="210"></canvas></div></div><div class="week2-conclusions"><section><h4>Conclusión numérica</h4><p class="week2-numerical-conclusion"></p></section><section><h4>Conclusión del problema</h4><p class="week2-problem-conclusion"></p></section></div><details class="week2-validation"><summary>Validación numérica y supuestos</summary><pre></pre></details></div>`;
         root.appendChild(card);
         card.querySelector('.week2-validation pre').textContent = JSON.stringify(c.validacion, null, 2);
         card.querySelector('.week2-numerical-conclusion').textContent = c.conclusiones?.numerica || 'Conclusión numérica pendiente.';
@@ -67,6 +67,7 @@ function showWeek2Result(result) {
         const errorSeries = c.id === 'oscilaciones' || c.id === 'sensores' ? (c.id === 'oscilaciones' ? ['rk2','rk4'] : ['lagrange','newton','spline']) : null;
         drawWeek2Chart(`w2-s-${index}`, c.graficos.solucion, solutionSeries);
         drawWeek2Chart(`w2-e-${index}`, c.graficos.error, errorSeries);
+        if (c.id === 'sensores') drawSensorObservationMarkers(`w2-s-${index}`, c.graficos.solucion);
     });
 }
 
@@ -127,6 +128,24 @@ function drawWeek2Chart(id, points, multiple) {
     const colors=['#0f766e','#d97706','#36577d','#ba5266'];
     series.forEach((key,s)=>{ctx.strokeStyle=colors[s%colors.length];ctx.lineWidth=2;ctx.beginPath();let started=false;points.forEach((p,i)=>{const y=Number(key?p[key]:p.y);if(!Number.isFinite(y))return;const px=40+(xs[i]-xmin)/(xmax-xmin)*465,py=175-(y-ymin)/(ymax-ymin)*155;if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);});ctx.stroke();if(key){ctx.fillStyle=colors[s%colors.length];ctx.font='10px sans-serif';ctx.fillText(key,44+(s%4)*112,12+Math.floor(s/4)*12);}});
     ctx.fillStyle='#445';ctx.font='11px sans-serif';ctx.fillText(`y: ${ymin.toPrecision(3)} a ${ymax.toPrecision(3)}`,42,202);
+}
+
+function drawSensorObservationMarkers(id, points) {
+    const canvas = document.getElementById(id), ctx = canvas.getContext('2d');
+    const series = ['referencia', 'lagrange', 'newton', 'spline'];
+    const values = series.flatMap(key => points.map(point => point[key]).filter(Number.isFinite));
+    if (!values.length) return;
+    let ymin = Math.min(...values), ymax = Math.max(...values);
+    if (ymin === ymax) { ymin -= 1; ymax += 1; }
+    const xValues = points.map(point => point.x), xmin = Math.min(...xValues), xmax = Math.max(...xValues);
+    ctx.fillStyle = '#D97706'; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5;
+    points.filter(point => point.nodo_medido && Number.isFinite(point.observacion)).forEach(point => {
+        const px = 40 + (point.x - xmin) / (xmax - xmin || 1) * 465;
+        const py = 175 - (point.observacion - ymin) / (ymax - ymin) * 155;
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    });
+    ctx.beginPath(); ctx.arc(427, 28, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#445'; ctx.font = '10px sans-serif'; ctx.fillText('muestras', 435, 31);
 }
 
 // Funcion global para renderizar formulas LaTeX con KaTeX

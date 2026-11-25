@@ -56,6 +56,15 @@ for (const scenario of Object.keys(SCENARIOS)) {
     assert.equal(sensors.validacion.todos_los_valores_finitos, true);
     assert.ok(Object.values(sensors.validacion.rmse_por_metodo).every(value => Number.isFinite(value) && value >= 0));
     assert.ok(sensors.validacion.puntos_prueba_ocultados.every(index => !sensors.validacion.indices_medidos.includes(index)));
+    assert.equal(sensors.resumen.ruido_sensor_rms_observado, sensors.validacion.ruido_sensor_rms_observado);
+    assert.equal(sensors.graficos.solucion.filter(point => point.nodo_medido).length, sensors.resumen.nodos_medidos, `${scenario}: la gráfica debe marcar todas las muestras medidas`);
+    assert.ok(sensors.graficos.solucion.filter(point => point.nodo_medido).every(point => Number.isFinite(point.observacion)));
+    assert.ok(sensors.graficos.solucion.filter(point => !point.nodo_medido).every(point => point.observacion === null));
+    if (scenario === 'NORMAL') {
+        assert.ok(sensors.resumen.rmse_lagrange < 0.05 && sensors.resumen.rmse_newton < 0.05 && sensors.resumen.rmse_spline < 0.02, 'La señal nominal debe reconstruirse con error pequeño.');
+        assert.equal(sensors.validacion.ruido_sensor_rms_observado, 0);
+    }
+    if (scenario === 'ESTRES') assert.ok(sensors.validacion.ruido_sensor_rms_observado > 0);
 }
 
 assert.ok(results.MAL_CONDICIONADO.casos[0].resumen.sensibilidad_dtdD > results.NORMAL.casos[0].resumen.sensibilidad_dtdD, 'El deterioro mal condicionado debe mostrar mayor sensibilidad del cruce.');
