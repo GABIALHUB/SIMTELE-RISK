@@ -37,7 +37,7 @@
             <button class="nav-tab active" data-tab="tab-mod1">MODULO 1: Detencion de Emergencia</button>
             <button class="nav-tab" data-tab="tab-lineales">LABORATORIO: Sistemas Lineales</button>
             <button class="nav-tab" data-tab="tab-semana2" data-week2-case="deterioro">MODULO 2: Deterioro y mantenimiento</button>
-            <button class="nav-tab" data-tab="tab-mod3">MODULO 3: Oscilaciones por Viento</button>
+            <button class="nav-tab" data-tab="tab-semana2" data-week2-case="oscilaciones">MODULO 3: Oscilaciones por Viento</button>
             <button class="nav-tab" data-tab="tab-semana2" data-week2-case="sensores">MODULO 4: Sensores</button>
             <button class="nav-tab" data-tab="tab-cobertura">COBERTURA MATEMATICA</button>
             <button class="nav-tab" data-tab="tab-semana2">SEMANA 2: METODOS INTEGRADOS</button>
@@ -526,7 +526,7 @@
         <!-- ============================================================= -->
         <section id="tab-mod2" class="tab-pane">
             <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 2 · MANTENIMIENTO</span><h2>Deterioro mecánico y tiempo de inspección</h2><p class="case-question">¿Cuándo alcanzaría un indicador hipotético de deterioro el umbral de inspección y cuánto cambia esa fecha ante parámetros sensibles?</p></div></div>
-            <div class="card info-card"><div class="card-body"><p>Se usa el modelo sintético (D(t)=D_0+αt+βt²). Bisección, Newton-Raphson y secante estiman el cruce (D(t)=D_{umbral}), que se contrasta con la raíz cuadrática analítica y se acompaña de errores, residuales y sensibilidad del tiempo a los parámetros.</p><p>La calibración numérica auxiliar resuelve un sistema SPD de tamaño 4 con LU, Jacobi, Gauss-Seidel y gradiente conjugado, comparando cada aproximación con la solución conocida. Ejecuta Semana 2 para ver tablas, gráficas y escenarios. El indicador es hipotético: no estima el estado de una instalación real.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="deterioro">Abrir el módulo 2</button></div></div>
+            <div class="card info-card"><div class="card-body"><p>Se usa el modelo sintético (D(t)=D_0+αt+βt²). Bisección, Newton-Raphson y secante estiman el cruce (D(t)=D_{umbral}), que se contrasta con la raíz cuadrática analítica y se acompaña de errores, residuales y sensibilidad del tiempo a los parámetros.</p><p>La calibración numérica auxiliar resuelve un sistema SPD de tamaño 4 con LU, Jacobi, Gauss-Seidel y gradiente conjugado, comparando cada aproximación con la solución conocida. Ejecuta Semana 2 para ver tablas, gráficas y escenarios. El indicador es hipotético: no estima el estado de una instalación real.</p></div></div>
         </section>
 
         <!-- TAB 4: MODULO 3 - OSCILACIONES Y RESONANCIA (PLANTEAMIENTO)   -->
@@ -588,7 +588,7 @@
         <!-- ============================================================= -->
         <section id="tab-mod4" class="tab-pane">
             <div class="case-header-card"><div class="case-info"><span class="badge-tag">MÓDULO 4 · SENSORES</span><h2>Reconstrucción de señales y datos faltantes</h2><p class="case-question">¿Cómo afectan los registros ausentes, el ruido y el espaciamiento de nodos a la reconstrucción?</p></div></div>
-            <div class="card info-card"><div class="card-body"><p>La señal sintética (y(t)=sin(t)+0.15cos(2t)) se muestrea y algunos puntos se ocultan como prueba. Lagrange, Newton por diferencias divididas y spline cúbico reciben exactamente los mismos nodos; se comparan RMSE, error máximo y error relativo en puntos no usados para ajustar.</p><p>Los escenarios agregan ruido o agrupan los nodos para estudiar estabilidad y confiabilidad. La referencia es analítica y se reporta la sensibilidad de las estimaciones a las perturbaciones.</p><button class="btn btn-primary nav-tab" data-tab="tab-semana2" data-week2-case="sensores">Abrir el módulo 4</button></div></div>
+            <div class="card info-card"><div class="card-body"><p>La señal sintética (y(t)=sin(t)+0.15cos(2t)) se muestrea y algunos puntos se ocultan como prueba. Lagrange, Newton por diferencias divididas y spline cúbico reciben exactamente los mismos nodos; se comparan RMSE, error máximo y error relativo en puntos no usados para ajustar.</p><p>Los escenarios agregan ruido o agrupan los nodos para estudiar estabilidad y confiabilidad. La referencia es analítica y se reporta la sensibilidad de las estimaciones a las perturbaciones.</p></div></div>
         </section>
 
         <!-- TAB 6: VISTA EXPLICACION MATEMATICA COMPLETA Y COBERTURA       -->
